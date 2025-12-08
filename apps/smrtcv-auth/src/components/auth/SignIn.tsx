@@ -3,15 +3,12 @@
 import { Button } from '@/components/ui/Button';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
+import MagicLinkForm from './MagicLinkForm';
 
-// --- CONFIG ---
-// In development, App is on port 4002. In production, this would be 'app.smrtcv.com'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:4002';
 
 export const SignIn = () => {
   const handleLogin = () => {
-    // TODO: Implement actual MSAL/Auth logic here
-    // For now, redirect to the main app dashboard/builder
     window.location.href = `${APP_URL}/builder`;
   };
 
@@ -36,6 +33,7 @@ export const SignIn = () => {
               LinkedIn
             </Button>
           </div>
+          <MagicLinkForm />
         </div>
       </div>
     </div>

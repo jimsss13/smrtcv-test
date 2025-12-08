@@ -1,0 +1,32 @@
+[
+  {
+    "id": "template1",
+    "name": "Classic",
+    "thumbnail": "classic.png",
+    "path": "classic/index.html"
+  },
+  {
+    "id": "template2",
+    "name": "Modern",
+    "thumbnail": "modern.png",
+    "path": "modern/index.html"
+  },
+  {
+    "id": "template3",
+    "name": "Creative",
+    "thumbnail": "creative.png",
+    "path": "creative/index.html"
+  },
+  {
+    "id": "template4",
+    "name": "Professional",
+    "thumbnail": "professional.png",
+    "path": "professional/index.html"
+  },
+  {
+    "id": "template5",
+    "name": "Minimalist",
+    "thumbnail": "minimalist.png",
+    "path": "minimalist/index.html"
+  }
+]

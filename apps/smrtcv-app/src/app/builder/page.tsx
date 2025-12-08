@@ -2,27 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useResumeStore } from "@/stores/resumeStore";
-
 import ResumeForm from "@/components/builder/ResumeForm";
 import DesignPanel from "@/components/builder/DesignPanel";
-
-// Import individual 'Classic' components
-import {
-  Awards,
-  Certificates,
-  Education,
-  Experience,
-  Header,
-  Interests,
-  Projects,
-  Publications,
-  References,
-  Skills,
-  Volunteer,
-} from "@/components/builder/resume"; 
-
-// Import 'Traditional' preview
-import { ResumePreviewTraditional } from "@/components/builder/traditional/ResumePreviewTraditional"; 
+import { getTemplateComponent } from "@/lib/templates";
 
 const TEMPLATE_KEY = 'selectedTemplate';
 
@@ -52,24 +34,7 @@ function ResumePreviewSkeleton() {
   );
 }
 
-// Map keys to their React components
-const PREVIEW_COMPONENTS: Record<string, React.ElementType> = {
-  work: Experience,
-  education: Education,
-  skills: Skills,
-  projects: Projects,
-  awards: Awards,
-  certificates: Certificates,
-  publications: Publications,
-  volunteer: Volunteer,
-  references: References,
-  interests: Interests,
-  // 'basics' is handled manually as the Header
-  // 'languages' & 'advisory' are not currently part of the Classic template design
-};
-
 export default function BuilderPage() {
-  // 1. Get resume AND sectionOrder from the store
   const { resume, sectionOrder } = useResumeStore((state) => state);
   
   const [isClient, setIsClient] = useState(false);
@@ -93,7 +58,7 @@ export default function BuilderPage() {
     }
   }, [selectedTemplate, isClient]);
 
-  // --- Scaling Logic (Ticket B) ---
+  // --- Scaling Logic ---
   useEffect(() => {
     if (!isClient) return;
 
@@ -103,7 +68,7 @@ export default function BuilderPage() {
       const containerWidth = containerRef.current.clientWidth;
       const padding = 48; 
       const availableWidth = containerWidth - padding;
-      // A4 width in pixels (96 DPI) -> 210mm * 3.7795
+      // A4 width in pixels (96 DPI) -> 210mm * 3.7795 approx 794px
       const standardWidth = 794;
 
       if (availableWidth < standardWidth) {
@@ -124,32 +89,12 @@ export default function BuilderPage() {
       return <ResumePreviewSkeleton />;
     }
 
-    switch (selectedTemplate) {
-      case 'classic':
-        return (
-          <div className="p-10 leading-relaxed h-full flex flex-col justify-start text-gray-900">
-            {/* Header (Basics) is usually fixed at the top for Classic */}
-            <Header basics={resume.basics} />
-            
-            {/* DYNAMIC RENDERING: Map over sectionOrder instead of hardcoding */}
-            {sectionOrder.map((key) => {
-              // Skip 'basics' as it's already rendered
-              if (key === 'basics') return null;
-              
-              const Component = PREVIEW_COMPONENTS[key];
-              if (!Component) return null;
+    // 1. Dynamic Lookup
+    const TemplateComponent = getTemplateComponent(selectedTemplate);
 
-              // Dynamically pass the correct data slice (e.g., resume.work, resume.skills)
-              return <Component key={key} {...{ [key]: (resume as any)[key] }} />;
-            })}
-          </div>
-        );
-      case 'traditional':
-        // Pass sectionOrder to Traditional template so it can also reorder its main content
-        return <ResumePreviewTraditional data={resume} sectionOrder={sectionOrder} />;
-      default:
-        return <div className="p-10">Template not found</div>;
-    }
+    // 2. Render the active template with standard props
+    // All templates now receive { data, sectionOrder }
+    return <TemplateComponent data={resume} sectionOrder={sectionOrder} />;
   };
 
   return (
@@ -158,8 +103,18 @@ export default function BuilderPage() {
         {/* LEFT PANEL */}
         <div className="md:w-1/3 overflow-y-auto flex-shrink-0">
           <div className="flex items-center justify-center mb-4 bg-gray-200 p-1 rounded-lg">
-            <button onClick={() => setPanelView('edit')} className={`w-1/2 py-2 rounded-md font-semibold transition-colors ${panelView === 'edit' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:bg-gray-300'}`}>Edit</button>
-            <button onClick={() => setPanelView('design')} className={`w-1/2 py-2 rounded-md font-semibold transition-colors ${panelView === 'design' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:bg-gray-300'}`}>Templates</button>
+            <button 
+              onClick={() => setPanelView('edit')} 
+              className={`w-1/2 py-2 rounded-md font-semibold transition-colors ${panelView === 'edit' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:bg-gray-300'}`}
+            >
+              Edit
+            </button>
+            <button 
+              onClick={() => setPanelView('design')} 
+              className={`w-1/2 py-2 rounded-md font-semibold transition-colors ${panelView === 'design' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:bg-gray-300'}`}
+            >
+              Templates
+            </button>
           </div>
           
           {panelView === 'edit' && <ResumeForm selectedTemplate={selectedTemplate} />}

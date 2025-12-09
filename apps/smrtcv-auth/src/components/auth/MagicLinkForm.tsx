@@ -19,7 +19,7 @@ export default function MagicLinkForm() {
       const res = await fetch(`${API_BASE}/auth/magic-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, redirectUrl: `${APP_URL}/builder` })
+        body: JSON.stringify({ email, redirectUrl: (() => { try { const params = new URLSearchParams(window.location.search); const n = params.get('next'); if (n && n.startsWith('/')) return `${APP_URL}${n}`; } catch {} return `${APP_URL}/builder`; })() })
       });
       if (!res.ok) throw new Error('request_failed');
       setStatus('sent');

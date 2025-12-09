@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useResumeStore } from "@/stores/resumeStore";
 import ResumeForm from "@/components/builder/ResumeForm";
 import DesignPanel from "@/components/builder/DesignPanel";
-import { getTemplateComponent } from "@/lib/templates";
+import { getTemplateComponent, TEMPLATE_REGISTRY } from "@/lib/templates";
 
 const TEMPLATE_KEY = 'selectedTemplate';
 
@@ -46,9 +46,16 @@ export default function BuilderPage() {
 
   useEffect(() => {
     setIsClient(true);
-    const savedTemplate = localStorage.getItem(TEMPLATE_KEY);
-    if (savedTemplate) {
-      setSelectedTemplate(savedTemplate);
+    const params = new URLSearchParams(window.location.search);
+    const qp = params.get('template');
+    if (qp && TEMPLATE_REGISTRY[qp]) {
+      setSelectedTemplate(qp);
+      localStorage.setItem(TEMPLATE_KEY, qp);
+    } else {
+      const savedTemplate = localStorage.getItem(TEMPLATE_KEY);
+      if (savedTemplate) {
+        setSelectedTemplate(savedTemplate);
+      }
     }
   }, []);
 

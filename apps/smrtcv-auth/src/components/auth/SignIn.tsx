@@ -9,7 +9,13 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:4002';
 
 export const SignIn = () => {
   const handleLogin = () => {
-    window.location.href = `${APP_URL}/builder`;
+    let nextPath = '/builder';
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const n = params.get('next');
+      if (n && n.startsWith('/')) nextPath = n;
+    } catch {}
+    window.location.href = `${APP_URL}${nextPath}`;
   };
 
   return (

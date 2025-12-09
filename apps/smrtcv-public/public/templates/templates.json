@@ -1,32 +1,14 @@
 [
   {
-    "id": "template1",
+    "id": "classic",
     "name": "Classic",
     "thumbnail": "classic.png",
-    "path": "classic/index.html"
+    "path": "https://devsmrtcvstgtemplates.blob.core.windows.net/templates/template1/classic.html?sp=r&st=2025-12-08T15:21:20Z&se=2026-12-31T23:36:20Z&sv=2024-11-04&sr=b&sig=WbOLJJAeomyrGYWsT9OmGCjM53%2F32jUhF4rE6w2l98c%3D"
   },
   {
-    "id": "template2",
-    "name": "Modern",
-    "thumbnail": "modern.png",
-    "path": "modern/index.html"
-  },
-  {
-    "id": "template3",
-    "name": "Creative",
-    "thumbnail": "creative.png",
-    "path": "creative/index.html"
-  },
-  {
-    "id": "template4",
-    "name": "Professional",
-    "thumbnail": "professional.png",
-    "path": "professional/index.html"
-  },
-  {
-    "id": "template5",
-    "name": "Minimalist",
-    "thumbnail": "minimalist.png",
-    "path": "minimalist/index.html"
+    "id": "traditional",
+    "name": "Traditional",
+    "thumbnail": "traditional.png",
+    "path": "traditional/index.html"
   }
 ]

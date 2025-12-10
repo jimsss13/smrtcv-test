@@ -34,8 +34,8 @@ export default function ProfilePage() {
 
         <nav className="flex flex-col space-y-3 mt-4">
           <button
-            className="flex items-center text-blue-500 font-semibold space-x-2"
-            style={{ color: "#1A91F0", fontWeight: 600 }}
+            className="flex items-center text-blue-500 font-bold space-x-2"
+            style={{ color: "#1A91F0"}}
           >
             <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
             <span>Edit Profile</span>

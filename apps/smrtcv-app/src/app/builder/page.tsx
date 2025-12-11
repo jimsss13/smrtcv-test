@@ -2,9 +2,53 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useResumeStore } from "@/stores/resumeStore";
+import { Resume } from "@/types/resume";
 import ResumeForm from "@/components/builder/ResumeForm";
 import DesignPanel from "@/components/builder/DesignPanel";
-import { getTemplateComponent, TEMPLATE_REGISTRY } from "@/lib/templates";
+import { TEMPLATE_REGISTRY } from "@/lib/templates";
+
+const getValue = (obj: any, path: string) => {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+};
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
+const bindDataToScope = (rootElement: Element, scopeData: Resume) => {
+  const listContainers = Array.from(rootElement.querySelectorAll('[data-list]'));
+  listContainers.forEach(container => {
+    const listKey = container.getAttribute('data-list') || '';
+    const listData = getValue(scopeData, listKey);
+    const templateItem = container.querySelector('[data-template="item"], [data-template="sub-item"]');
+    if (Array.isArray(listData) && templateItem) {
+      const itemBlueprint = templateItem.cloneNode(true) as Element;
+      itemBlueprint.removeAttribute('data-template');
+      container.innerHTML = '';
+      listData.forEach(itemData => {
+        const newItem = itemBlueprint.cloneNode(true) as Element;
+        const contextData = typeof itemData === 'object' ? itemData : { ui: itemData };
+        bindDataToScope(newItem, contextData as Resume);
+        container.appendChild(newItem);
+      });
+    }
+  });
+  const bindElements = Array.from(rootElement.querySelectorAll('[data-bind]'));
+  bindElements.forEach(el => {
+    const key = el.getAttribute('data-bind') || '';
+    const val = getValue(scopeData, key);
+    if (val !== undefined) {
+      el.textContent = val;
+      const attrPattern = el.getAttribute('data-attr-href');
+      if (attrPattern) el.setAttribute('href', attrPattern.replace(`{{${key}}}`, val));
+    }
+  });
+};
 
 const TEMPLATE_KEY = 'selectedTemplate';
 
@@ -36,13 +80,18 @@ function ResumePreviewSkeleton() {
 
 export default function BuilderPage() {
   const { resume, sectionOrder } = useResumeStore((state) => state);
+  const debouncedResume = useDebounce(resume, 200);
   
   const [isClient, setIsClient] = useState(false);
   const [panelView, setPanelView] = useState<'edit' | 'design'>('edit');
   const [selectedTemplate, setSelectedTemplate] = useState('classic');
+  const [rawTemplate, setRawTemplate] = useState<string | null>(null);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+
 
   useEffect(() => {
     setIsClient(true);
@@ -59,11 +108,40 @@ export default function BuilderPage() {
     }
   }, []);
 
+  // Get the template URL from the registry
+  useEffect(() => {
+    const templateConfig = TEMPLATE_REGISTRY[selectedTemplate];
+    if (templateConfig && templateConfig.templateUrl) {
+      fetch(templateConfig.templateUrl)
+        .then((res) => res.text())
+        .then(setRawTemplate)
+        .catch((error) => console.error("Error fetching template:", error));
+    } else {
+      setRawTemplate(null); // Clear template if not found
+      console.error(`Template configuration or URL not found for: ${selectedTemplate}`);
+    }
+  }, [selectedTemplate]);
+
   useEffect(() => {
     if (isClient) {
       localStorage.setItem(TEMPLATE_KEY, selectedTemplate);
     }
   }, [selectedTemplate, isClient]);
+
+  useEffect(() => {
+    if (!rawTemplate) return;
+
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawTemplate, "text/html");
+      bindDataToScope(doc.documentElement, debouncedResume);
+      const serializer = new XMLSerializer();
+      setPreviewHtml(serializer.serializeToString(doc));
+    } catch (error) {
+      console.error("Error generating preview:", error);
+      setPreviewHtml("Error rendering preview.");
+    }
+  }, [rawTemplate, debouncedResume]);
 
   // --- Scaling Logic ---
   useEffect(() => {
@@ -92,16 +170,18 @@ export default function BuilderPage() {
 
   // --- Render Strategy ---
   const renderPreviewContent = () => {
-    if (!isClient) {
+    if (!isClient || !previewHtml) {
       return <ResumePreviewSkeleton />;
     }
 
-    // 1. Dynamic Lookup
-    const TemplateComponent = getTemplateComponent(selectedTemplate);
-
-    // 2. Render the active template with standard props
-    // All templates now receive { data, sectionOrder }
-    return <TemplateComponent data={resume} sectionOrder={sectionOrder} />;
+    return (
+      <iframe
+        title="Resume Preview"
+        srcDoc={previewHtml}
+        className="w-full h-full border-none bg-white"
+        style={{ transformOrigin: 'top left' }}
+      />
+    );
   };
 
   return (

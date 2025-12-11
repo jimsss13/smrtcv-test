@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-bind="basics.name">Resume</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        .container { max-width: 800px; margin: auto; padding: 20px; border: 1px solid #ccc; }
+        h1 { color: #333; }
+        .section { margin-bottom: 15px; }
+        .section-title { font-weight: bold; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 data-bind="basics.name"></h1>
+            <p data-bind="basics.label"></p>
+            <p>Email: <span data-bind="basics.email"></span></p>
+            <p>Phone: <span data-bind="basics.phone"></span></p>
+            <p>Website: <a data-bind="basics.url" href="#"></a></p>
+        </header>
+
+        <section class="section">
+            <div class="section-title">Summary</div>
+            <p data-bind="basics.summary"></p>
+        </section>
+
+        <!-- Add more sections as needed, e.g., work, education, skills -->
+    </div>
+</body>
+</html>

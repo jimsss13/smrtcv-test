@@ -2,50 +2,88 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import CropModal from "@/components/user-profile/CropModal"; // Import the modal component
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [tempPhoto, setTempPhoto] = useState<string | null>(null);
+  const [cropSource, setCropSource] = useState<string | null>(null); // To hold the image source for the modal
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
+    const selectedFile = e.target.files?.[0];
 
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        setTempPhoto(imageUrl);
+    if (selectedFile) {
+      const imageUrl = URL.createObjectURL(selectedFile);
+      setCropSource(imageUrl); // Open the modal with the selected image
+      setMessage(null);
+      setError(null);
+    }
+  };
+
+  const handleConfirmCrop = async (croppedImageBlob: Blob) => {
+    const croppedFile = new File([croppedImageBlob], "cropped_photo.jpg", { type: 'image/jpeg' });
+    const formData = new FormData();
+    formData.append("file", croppedFile);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/detect-faces/", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        let errorMessage = data.detail || "An unknown error occurred.";
+        if (typeof data.detail === 'object' && data.detail !== null) {
+          errorMessage = `Error: ${data.detail.message} - Scores: ${JSON.stringify(data.detail.content_safety_scores)}`;
+        }
+        throw new Error(errorMessage);
       }
-    };
+      
+      const croppedImageUrl = URL.createObjectURL(croppedImageBlob);
+      setPhoto(croppedImageUrl);
+      setMessage(`Success: ${data.message} - Scores: ${JSON.stringify(data.content_safety_scores)}`);
+      setError(null);
 
-    const savePhoto = () => {
-      setPhoto(tempPhoto); 
-      setTempPhoto(null);
-    };
+    } catch (err: any) {
+      setError(err.message);
+      setMessage(null);
+    } finally {
+      setCropSource(null); // Close the modal
+    }
+  };
 
-    const cancelPhoto = () => {
-      setTempPhoto(null);
-    };
+  const handleCancelCrop = () => {
+    setCropSource(null); // Close the modal
+    setMessage(null);
+    setError(null);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* Modal Render */}
+      {cropSource && (
+        <CropModal 
+          src={cropSource} 
+          onConfirm={handleConfirmCrop} 
+          onCancel={handleCancelCrop} 
+        />
+      )}
 
-        <div
-          className="w-1/4 flex flex-col items-center py-10 space-y-6 border-blue-500"
-          style={{ background: "#1A91f010" }}
-        >
-          {/* PROFILE PHOTO FRAME */}
+      {/* Sidebar */}
+      <div
+        className="w-1/4 flex flex-col items-center py-10 space-y-6 border-blue-500"
+        style={{ background: "#1A91f010" }}
+      >
+        {/* PROFILE PHOTO FRAME */}
         <div
           className="relative w-50 h-50 border-2 border-blue-500 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center"
           style={{ borderColor: "#1A91F0" }}
         >
-          {tempPhoto ? (
-            <Image
-              src={tempPhoto}
-              alt="Preview Photo"
-              fill
-              className="object-cover rounded-full"
-            />
-          ) : photo ? (
+          {photo ? (
             <Image
               src={photo}
               alt="Profile Photo"
@@ -64,30 +102,17 @@ export default function ProfilePage() {
           className="hidden"
           onChange={handlePhotoChange}
         />
-        {!tempPhoto ? (
-          <button
-            className="font-medium hover:underline"
-            style={{ color: "#1A91F0" }}
-            onClick={() => document.getElementById("photo-input")?.click()}
-          >
-            Change photo
-          </button>
-        ) : (
-          <div className="flex space-x-3">
-            <button
-              className="px-3 py-1 text-white rounded bg-[#1A91F0] hover:bg-[#0068BB]"
-              onClick={savePhoto}
-            >
-              Save
-            </button>
-            <button
-              className="px-3 py-1 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded"
-              onClick={cancelPhoto}
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+        <button
+          className="font-medium hover:underline"
+          style={{ color: "#1A91F0" }}
+          onClick={() => document.getElementById("photo-input")?.click()}
+        >
+          Change photo
+        </button>
+
+          {/* backend response */}
+        {message && <div className="text-green-600 text-sm text-center">{message}</div>}
+        {error && <div className="text-red-600 text-sm text-center">{error}</div>}
 
         <nav className="flex flex-col space-y-3 mt-4">
           <button

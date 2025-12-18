@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useResumeStore } from "@/stores/resumeStore";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useClientResumeStore } from "@/hooks/useClientResumeStore";
 import { Resume } from "@/types/resume";
 import ResumeForm from "@/components/builder/ResumeForm";
 import DesignPanel from "@/components/builder/DesignPanel";
-import { TEMPLATE_REGISTRY } from "@/lib/templates";
+import { Template } from "@/types/template";
 
 const getValue = (obj: any, path: string) => {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -79,54 +79,98 @@ function ResumePreviewSkeleton() {
 }
 
 export default function BuilderPage() {
-  const { resume, sectionOrder } = useResumeStore((state) => state);
+  const { resume, sectionOrder, selectedTemplate, setSelectedTemplate } = useClientResumeStore(useCallback((state) => ({ resume: state.resume, sectionOrder: state.sectionOrder, selectedTemplate: state.selectedTemplate, setSelectedTemplate: state.setSelectedTemplate }), []));
   const debouncedResume = useDebounce(resume, 200);
   
   const [isClient, setIsClient] = useState(false);
   const [panelView, setPanelView] = useState<'edit' | 'design'>('edit');
-  const [selectedTemplate, setSelectedTemplate] = useState('classic');
   const [rawTemplate, setRawTemplate] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-
-
+  const { templates, setTemplates } = useClientResumeStore(useCallback((state) => ({ templates: state.templates, setTemplates: state.setTemplates }), []));
 
   useEffect(() => {
     setIsClient(true);
-    const params = new URLSearchParams(window.location.search);
-    const qp = params.get('template');
-    if (qp && TEMPLATE_REGISTRY[qp]) {
-      setSelectedTemplate(qp);
-      localStorage.setItem(TEMPLATE_KEY, qp);
-    } else {
-      const savedTemplate = localStorage.getItem(TEMPLATE_KEY);
-      if (savedTemplate) {
-        setSelectedTemplate(savedTemplate);
+    const fetchTemplatesFromIndex = async () => {
+      try {
+        // Define the templates.json SAS URL
+        const templatesJsonSasUrl = "https://devsmrtcvstgtemplates.blob.core.windows.net/templates/templates.json?sp=r&st=2025-12-17T16:46:56Z&se=2025-12-18T01:01:56Z&spr=https&sv=2024-11-04&sr=b&sig=0a2fc0NWMxE7ee88guyeUXHpc9vHfGtsSqL1paIpE5s%3D";
+        
+
+        if (!templatesJsonSasUrl) {
+          throw new Error("templates.json SAS URL not found in index.html script.");
+        }
+
+        const templatesRes = await fetch(templatesJsonSasUrl);
+        if (!templatesRes.ok) {
+          throw new Error(`HTTP error fetching templates.json! status: ${templatesRes.status}`);
+        }
+        const data: Template[] = await templatesRes.json();
+        console.log("templates.json data:", data);
+        setTemplates(data);
+
+        const params = new URLSearchParams(window.location.search);
+        const qp = params.get('template');
+        const templateMap = data.reduce((acc, template) => {
+          acc[template.id] = template;
+          return acc;
+        }, {} as Record<string, Template>);
+
+        if (qp && templateMap[qp]) {
+          setSelectedTemplate(qp);
+        } else {
+          const savedTemplate = localStorage.getItem(TEMPLATE_KEY);
+          if (savedTemplate && templateMap[savedTemplate]) {
+            setSelectedTemplate(savedTemplate);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching templates:", error);
       }
-    }
-  }, []);
+    };
+    fetchTemplatesFromIndex();
+  }, [setTemplates, setSelectedTemplate]);
 
   // Get the template URL from the registry
   useEffect(() => {
-    const templateConfig = TEMPLATE_REGISTRY[selectedTemplate];
-    if (templateConfig && templateConfig.templateUrl) {
-      fetch(templateConfig.templateUrl)
-        .then((res) => res.text())
-        .then(setRawTemplate)
-        .catch((error) => console.error("Error fetching template:", error));
-    } else {
-      setRawTemplate(null); // Clear template if not found
+    const templateConfig = templates.find((t: Template) => t.id === selectedTemplate);
+    if (templateConfig && templateConfig.html_sas_url && templateConfig.config_json_sas_url) {
+      Promise.all([
+        fetch(templateConfig.html_sas_url).then(res => res.text()),
+        fetch(templateConfig.config_json_sas_url).then(res => res.json())
+      ])
+      .then(([htmlContent, configData]) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, "text/html");
+
+        // Find the script that loads the config and replace it
+        const scriptToReplace = doc.querySelector('script'); // Assuming it's the first script
+        if (scriptToReplace) {
+          const newScript = doc.createElement('script');
+          newScript.textContent = `window.templateConfigData = ${JSON.stringify(configData)};`;
+          scriptToReplace.parentNode?.replaceChild(newScript, scriptToReplace);
+        }
+
+        // Update CSS link hrefs to use the SAS URL
+        const styleLinks = doc.querySelectorAll('link[rel="stylesheet"]');
+        styleLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('http://') && !href.startsWith('https://') && templateConfig.css_sas_url) {
+            link.setAttribute('href', templateConfig.css_sas_url);
+          }
+        });
+
+        const serializer = new XMLSerializer();
+        setRawTemplate(serializer.serializeToString(doc));
+      })
+      .catch((error) => console.error("Error fetching template or config:", error));
+    } else if (rawTemplate !== null) { // Only set to null if it's not already null
+      setRawTemplate(null);
       console.error(`Template configuration or URL not found for: ${selectedTemplate}`);
     }
-  }, [selectedTemplate]);
-
-  useEffect(() => {
-    if (isClient) {
-      localStorage.setItem(TEMPLATE_KEY, selectedTemplate);
-    }
-  }, [selectedTemplate, isClient]);
+  }, [selectedTemplate, templates, rawTemplate]);
 
   useEffect(() => {
     if (!rawTemplate) return;
@@ -186,9 +230,9 @@ export default function BuilderPage() {
 
   return (
     <main className="flex flex-col gap-8 p-8 bg-gray-100 h-[calc(100vh-64px)] overflow-hidden text-black">
-      <div className="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-8 grow overflow-hidden">
         {/* LEFT PANEL */}
-        <div className="md:w-1/3 overflow-y-auto flex-shrink-0">
+        <div className="md:w-1/3 overflow-y-auto shrink-0">
           <div className="flex items-center justify-center mb-4 bg-gray-200 p-1 rounded-lg">
             <button 
               onClick={() => setPanelView('edit')} 

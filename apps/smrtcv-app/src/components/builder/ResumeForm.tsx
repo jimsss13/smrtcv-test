@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -10,7 +10,7 @@ import {
   ChevronUp,
   LayoutDashboard
 } from "lucide-react";
-import { useResumeStore } from "@/stores/resumeStore";
+import { useClientResumeStore } from "@/hooks/useClientResumeStore";
 import { Resume } from "@/types/resume";
 
 // DND Kit Imports
@@ -145,13 +145,18 @@ function DraggableAccordion({ id, title, isOpen, onToggle, children }: Accordion
 }
 
 export default function ResumeForm({ selectedTemplate }: Props) {
-  const { sectionOrder, reorderSections } = useResumeStore();
+  const { sectionOrder, reorderSections } = useClientResumeStore(useCallback((state) => ({ sectionOrder: state.sectionOrder, reorderSections: state.reorderSections }), []));
   
   // Modes: Wizard (Guided) vs Editor (Free-form)
   const [mode, setMode] = useState<'wizard' | 'editor'>('wizard');
   
   // Wizard State
   const [stepIndex, setStepIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Editor State: Track which accordion is open
   const [expandedSection, setExpandedSection] = useState<keyof Resume | null>('basics');
@@ -213,10 +218,14 @@ export default function ResumeForm({ selectedTemplate }: Props) {
               Skip to Overview
             </button>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-2">
-            <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
-          </div>
-          <p className="text-xs text-gray-400 mt-2 text-right">Step {stepIndex + 1} of {activeSections.length}</p>
+          {mounted && (
+            <>
+              <div className="w-full bg-gray-100 rounded-full h-2">
+                <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              </div>
+              <p className="text-xs text-gray-400 mt-2 text-right">Step {stepIndex + 1} of {activeSections.length}</p>
+            </>
+          )}
         </div>
         <div className="flex-grow overflow-y-auto p-6">
           <CurrentComponent selectedTemplate={selectedTemplate} />

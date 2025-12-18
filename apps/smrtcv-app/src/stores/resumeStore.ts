@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
 import { Resume } from '@/types/resume';
+import { Template } from '@/types/template'; // Import Template type
 
 // --- 1. Type Safety Utilities ---
 type RecursiveKeyOf<TObj extends object> = {
@@ -102,19 +103,23 @@ const blankEntryMap: Record<keyof Resume, any> = {
 interface ResumeState {
   resume: Resume;
   sectionOrder: (keyof Resume)[];
+  templates: Template[];
+  selectedTemplate: string; // New: Add selectedTemplate state
 
   updateField: <P extends RecursiveKeyOf<Resume>>(
-    path: P, 
+    path: P,
     value: PathValue<Resume, P>
   ) => void;
 
   addSection: (section: keyof Resume, template: any) => void;
-  
+
   // NEW: Remove Action
   removeSection: (section: keyof Resume, index: number) => void;
 
   updateStringArray: (path: RecursiveKeyOf<Resume>, value: string) => void;
   reorderSections: (newOrder: (keyof Resume)[]) => void;
+  setTemplates: (templates: Template[]) => void;
+  setSelectedTemplate: (templateId: string) => void; // New: Add setSelectedTemplate action
 }
 
 export const useResumeStore = create(
@@ -122,6 +127,8 @@ export const useResumeStore = create(
     immer<ResumeState>((set) => ({
       resume: blankResume,
       sectionOrder: defaultSectionOrder,
+      templates: [],
+      selectedTemplate: 'classic', // Initialize selectedTemplate
 
       updateField: (path, value) => {
         set((state) => {
@@ -174,6 +181,18 @@ export const useResumeStore = create(
       reorderSections: (newOrder) => {
         set((state) => {
           state.sectionOrder = newOrder;
+        });
+      },
+
+      setTemplates: (templates) => { // Implement setTemplates action
+        set((state) => {
+          state.templates = templates;
+        });
+      },
+
+      setSelectedTemplate: (templateId) => { // New: Implement setSelectedTemplate action
+        set((state) => {
+          state.selectedTemplate = templateId;
         });
       },
     })),

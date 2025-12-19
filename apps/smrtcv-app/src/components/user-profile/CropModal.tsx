@@ -24,8 +24,12 @@ export default function CropModal({ src, onConfirm, onCancel }: CropModalProps) 
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+
+    const croppedWidth = crop.width * scaleX;
+    const croppedHeight = crop.height * scaleY;
+    canvas.width = croppedWidth;
+    canvas.height = croppedHeight;
+
     const ctx = canvas.getContext('2d');
 
     if (!ctx) {
@@ -39,12 +43,12 @@ export default function CropModal({ src, onConfirm, onCancel }: CropModalProps) 
       image,
       cropX,
       cropY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      croppedWidth,
+      croppedHeight,
       0,
       0,
-      crop.width,
-      crop.height
+      croppedWidth,
+      croppedHeight
     );
 
     canvas.toBlob(

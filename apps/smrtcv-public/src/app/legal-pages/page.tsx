@@ -6,12 +6,12 @@ import Image from "next/image";
 const policies = [
   {
     title: "Terms of Service",
-    href: "/terms",
+    href: "/terms-of-service",
     image: "/terms-of-service.png",
   },
   {
     title: "Privacy Policy",
-    href: "/privacy",
+    href: "/privacy-policy",
     image: "/privacy-policy.png",
   },
   {

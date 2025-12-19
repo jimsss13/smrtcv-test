@@ -57,6 +57,20 @@ export const Header = () => {
           >
             About
           </Link>
+          <Link
+            href="/legal-pages"
+            className="text-black text-[16px] transition-all hover:font-semibold"
+            style={{fontFamily: 'Poppins, Sans-serif'}}
+          >
+            Terms and Policies
+          </Link>
+          <Link
+            href="/subscription"
+            className="text-black text-[16px] transition-all hover:font-semibold"
+            style={{fontFamily: 'Poppins, Sans-serif'}}
+          >
+            Subscription
+          </Link>
           <a
             href={`${AUTH_URL}/signin`}
             className="text-black text-[16px] transition-all hover:font-semibold"

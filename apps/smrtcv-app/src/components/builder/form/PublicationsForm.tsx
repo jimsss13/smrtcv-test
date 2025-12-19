@@ -12,7 +12,7 @@ const InputGroup = ({ label, value, placeholder, onChange }: any) => (
 const TextAreaGroup = ({ label, value, placeholder, onChange }: any) => (
   <div className="space-y-1.5">
     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
-    <textarea value={value || ""} onChange={onChange} placeholder={placeholder} className="flex min-h-[80px] w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y shadow-sm" />
+    <textarea value={value || ""} onChange={onChange} placeholder={placeholder} className="flex min-h-20 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y shadow-sm" />
   </div>
 );
 

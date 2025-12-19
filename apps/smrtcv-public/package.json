@@ -1,6 +1,8 @@
 {
   "name": "smrtcv-public",
   "version": "0.1.0",
+  "description": "Public landing page for Smart CV - A modern resume builder",
+  "author": "Smart CV Team",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

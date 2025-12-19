@@ -41,7 +41,7 @@ export const Header = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-6 text-sm md:flex">
+        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           <Link
             href="/faq"
             className="text-foreground-secondary transition-colors hover:text-foreground"
@@ -54,13 +54,22 @@ export const Header = () => {
           >
             About
           </Link>
+          <Link
+            href="/pricing"
+            className="text-foreground-secondary transition-colors hover:text-foreground"
+          >
+            Pricing
+          </Link>
+          
+          <div className="h-4 w-[1px] bg-border mx-2" />
+
           <a
             href={`${AUTH_URL}/signin`}
             className="text-foreground-secondary transition-colors hover:text-foreground"
           >
             Sign In
           </a>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="default" size="sm" className="bg-blue-500 hover:bg-blue-600 rounded-lg px-6">
             <a href={`${AUTH_URL}/signin`}>Create Resume as Guest</a>
           </Button>
         </nav>
@@ -107,6 +116,13 @@ export const Header = () => {
             className="text-foreground-secondary transition-colors hover:text-foreground"
           >
             About
+          </Link>
+          <Link
+            href="/pricing"
+            onClick={handleLinkClick}
+            className="text-foreground-secondary transition-colors hover:text-foreground"
+          >
+            Pricing
           </Link>
           <a
             href={`${AUTH_URL}/signin`}

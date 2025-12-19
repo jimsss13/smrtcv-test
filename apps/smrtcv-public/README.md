@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart CV - Public Landing Page
 
-## Getting Started
+This is the public-facing landing page for **Smart CV**, a modern resume builder. It serves as the primary entry point for users to explore features, view templates, and access the resume building application.
 
-First, run the development server:
+## 🚀 Tech Stack
 
+- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) with CSS variables theme
+- **Components**: [Radix UI](https://www.radix-ui.com/) for accessible primitives
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Animations**: [Embla Carousel](https://www.embla-carousel.com/) for template browsing
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Data Fetching**: Native fetch with Next.js caching
+
+## ✨ Key Features
+
+- **Responsive Design**: Fully optimized for mobile, tablet, and desktop devices.
+- **Template Showcase**: Interactive carousel featuring battle-tested resume templates.
+- **Pricing Page**: Transparent pricing tiers with clear CTAs for conversion.
+- **FAQ System**: Categorized and searchable frequently asked questions.
+- **About Page**: Mission statement and company values.
+- **Global Header/Footer**: Seamless navigation between public pages and the main app.
+
+## 🛠️ Getting Started
+
+### Prerequisites
+- Node.js 20+ 
+- pnpm (recommended)
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Run the development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📁 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+src/
+├── app/            # Next.js App Router pages and layouts
+├── components/     # Reusable UI components
+│   ├── landing/    # Landing page sections (Hero, Features, etc.)
+│   ├── layout/     # Header and Footer
+│   └── ui/         # Base Radix-based UI primitives
+├── contexts/       # Static data (FAQs, Testimonials)
+├── lib/            # Shared utilities and CDN logic
+├── types/          # TypeScript definitions
+└── utils/          # Helper functions
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 Theme & Styling
 
-## Learn More
+This project uses **Tailwind CSS 4** with the new `@theme` directive in `src/app/globals.css`. 
+- **Brand Blue**: `#3B82F6` (Primary)
+- **Fluid Typography**: Responsive font sizes optimized for readability.
+- **Custom Components**: Styled using `class-variance-authority` (CVA) for variant management.
 
-To learn more about Next.js, take a look at the following resources:
+## 🔒 Security
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js 15.5.8**: Patched against critical RCE and DoS vulnerabilities.
+- **Input Validation**: Using Zod for type-safe data handling.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private - Smart CV © 2025

@@ -26,10 +26,29 @@ export const TemplatesSection = () => {
 
   // Fetch templates from "CDN"
   React.useEffect(() => {
-    fetch(getTemplateDataUrl())
-      .then((res) => res.json())
-      .then((data) => setTemplateData(data))
-      .catch((err) => console.error("Failed to load templates", err));
+    let isMounted = true;
+    
+    const fetchTemplates = async () => {
+      try {
+        const res = await fetch(getTemplateDataUrl(), {
+          next: { revalidate: 3600 } // Cache for 1 hour
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setTemplateData(data);
+      } catch (err) {
+        if (isMounted) {
+          console.error("Failed to load templates:", err);
+          // Optional: Set a fallback or error state
+        }
+      }
+    };
+
+    fetchTemplates();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const scrollPrev = React.useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);

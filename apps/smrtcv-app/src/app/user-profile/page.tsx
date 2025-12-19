@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [cropSource, setCropSource] = useState<string | null>(null); // To hold the image source for the modal
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
+  // State to hold the original profile data for resetting
   const [originalUserProfile, setOriginalUserProfile] = useState<UserProfileData | null>(null);
 
   useEffect(() => {
@@ -39,6 +40,11 @@ export default function ProfilePage() {
     fetchUserProfile();
   }, []);
 
+  const capitalizeWords = (str: string) => {
+    if (!str) return '';
+    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+  };
+
   const handleSave = async () => {
     if (!userProfile) return;
 
@@ -54,7 +60,8 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile.');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to update profile.');
       }
 
       const data: UserProfileData = await response.json();
@@ -62,8 +69,8 @@ export default function ProfilePage() {
       setOriginalUserProfile(data);
       setIsEditing(false);
       toast.success('Profile updated successfully!', { id: toastId });
-    } catch (error) {
-      toast.error("Could not update profile.", { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message || "Could not update profile.", { id: toastId });
     }
   };
 
@@ -231,26 +238,38 @@ export default function ProfilePage() {
           <form className="space-y-4 max-w-lg">
             <div className="flex items-center">
               <label className="w-32 text-[black]">Email Address:</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                disabled={!isEditing}
-                value={userProfile.email_address}
-                onChange={(e) => setUserProfile({ ...userProfile, email_address: e.target.value })}
-                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-              />
+              <div className="relative flex-1">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  disabled
+                  value={userProfile.email_address}
+                  className="w-full p-2 rounded bg-gray-200 focus:outline-none disabled:opacity-70 cursor-not-allowed pr-10"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center">
               <label className="w-32 text-[black]">Full Name:</label>
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                disabled={!isEditing}
-                value={userProfile.full_name}
-                onChange={(e) => setUserProfile({ ...userProfile, full_name: e.target.value })}
-                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-              />
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Enter your full name"
+                  disabled
+                  value={userProfile.full_name}
+                  className="w-full p-2 rounded bg-gray-200 focus:outline-none disabled:opacity-70 cursor-not-allowed pr-10"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center">
@@ -260,7 +279,7 @@ export default function ProfilePage() {
                 placeholder="Enter your city"
                 disabled={!isEditing}
                 value={userProfile.city}
-                onChange={(e) => setUserProfile({ ...userProfile, city: e.target.value })}
+                onChange={(e) => setUserProfile({ ...userProfile, city: capitalizeWords(e.target.value) })}
                 className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
               />
             </div>
@@ -272,7 +291,7 @@ export default function ProfilePage() {
                 placeholder="Enter your country"
                 disabled={!isEditing}
                 value={userProfile.country}
-                onChange={(e) => setUserProfile({ ...userProfile, country: e.target.value })}
+                onChange={(e) => setUserProfile({ ...userProfile, country: capitalizeWords(e.target.value) })}
                 className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
               />
             </div>

@@ -1,4 +1,6 @@
 /* Import the base, components, and utilities from Tailwind v4 */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
 /* Define our entire custom theme using v4's @theme directive.

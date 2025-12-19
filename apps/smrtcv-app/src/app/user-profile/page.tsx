@@ -120,7 +120,7 @@ export default function ProfilePage() {
             style={{ color: "#1A91F0", fontSize: "18px" }}
           >
             <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-            <span>Edit Profile</span>
+            <span>Account Details</span>
           </button>
           <button
             className="flex items-center text-blue-500 space-x-2 hover:font-bold"

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function TermsOfServicePage() {
+export default function RefundPolicyPage() {
   return (
     <main className="min-h-screen bg-white px-4 py-8">
       <div className="mx-auto max-w-3xl">
@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
         <div className="my-8 flex justify-center">
           <Image
             src="/rp.png"
-            alt="Terms of Service Illustration"
+            alt="Refund Policy Illustration"
             width={620}
             height={480}
             priority

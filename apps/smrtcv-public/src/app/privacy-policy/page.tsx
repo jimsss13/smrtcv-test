@@ -1,7 +1,7 @@
     import Image from "next/image";
     import Link from "next/link";
 
-    export default function TermsOfServicePage() {
+    export default function PrivacyPolicyPage() {
     return (
         <main className="min-h-screen bg-white px-4 py-8">
         <div className="mx-auto max-w-3xl">

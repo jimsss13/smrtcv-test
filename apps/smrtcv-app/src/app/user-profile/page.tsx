@@ -1,15 +1,76 @@
 "use client";
 
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import CropModal from "@/components/user-profile/CropModal"; // Import the modal component
+import { Toaster, toast } from 'react-hot-toast';
+
+interface UserProfileData {
+  email_address: string;
+  full_name: string;
+  city: string;
+  country: string;
+}
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [cropSource, setCropSource] = useState<string | null>(null); // To hold the image source for the modal
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+
+  const [originalUserProfile, setOriginalUserProfile] = useState<UserProfileData | null>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/users/me");
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile.');
+        }
+        const data: UserProfileData = await response.json();
+        setUserProfile(data);
+        setOriginalUserProfile(data); // Save the original state
+      } catch (error) {
+        toast.error("Could not load user profile.");
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  const handleSave = async () => {
+    if (!userProfile) return;
+
+    const toastId = toast.loading('Updating profile...');
+
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/users/me", {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userProfile),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile.');
+      }
+
+      const data: UserProfileData = await response.json();
+      setUserProfile(data);
+      setOriginalUserProfile(data);
+      setIsEditing(false);
+      toast.success('Profile updated successfully!', { id: toastId });
+    } catch (error) {
+      toast.error("Could not update profile.", { id: toastId });
+    }
+  };
+
+  const handleCancel = () => {
+    setUserProfile(originalUserProfile); // Revert to original state
+    setIsEditing(false);
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -17,8 +78,6 @@ export default function ProfilePage() {
     if (selectedFile) {
       const imageUrl = URL.createObjectURL(selectedFile);
       setCropSource(imageUrl); // Open the modal with the selected image
-      setMessage(null);
-      setError(null);
     }
   };
 
@@ -26,6 +85,8 @@ export default function ProfilePage() {
     const croppedFile = new File([croppedImageBlob], "cropped_photo.jpg", { type: 'image/jpeg' });
     const formData = new FormData();
     formData.append("file", croppedFile);
+
+    const toastId = toast.loading('Uploading photo...');
 
     try {
       const response = await fetch("http://localhost:8000/api/v1/detect-faces/", {
@@ -38,19 +99,17 @@ export default function ProfilePage() {
       if (!response.ok) {
         let errorMessage = data.detail || "An unknown error occurred.";
         if (typeof data.detail === 'object' && data.detail !== null) {
-          errorMessage = `Error: ${data.detail.message} - Scores: ${JSON.stringify(data.detail.content_safety_scores)}`;
+          errorMessage = data.detail.message;
         }
         throw new Error(errorMessage);
       }
       
       const croppedImageUrl = URL.createObjectURL(croppedImageBlob);
       setPhoto(croppedImageUrl);
-      setMessage(`Success: ${data.message} - Scores: ${JSON.stringify(data.content_safety_scores)}`);
-      setError(null);
+      toast.success("Successfully uploaded photo", { id: toastId });
 
     } catch (err: any) {
-      setError(err.message);
-      setMessage(null);
+      toast.error(err.message, { id: toastId });
     } finally {
       setCropSource(null); // Close the modal
     }
@@ -58,12 +117,11 @@ export default function ProfilePage() {
 
   const handleCancelCrop = () => {
     setCropSource(null); // Close the modal
-    setMessage(null);
-    setError(null);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      <Toaster position="top-center" reverseOrder={false} />
       {/* Modal Render */}
       {cropSource && (
         <CropModal 
@@ -109,11 +167,6 @@ export default function ProfilePage() {
         >
           Change photo
         </button>
-
-          {/* backend response */}
-        {message && <div className="text-green-600 text-sm text-center">{message}</div>}
-        {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-
         <nav className="flex flex-col space-y-3 mt-4">
           <button
             className="flex items-center text-blue-500 font-bold space-x-2"
@@ -174,78 +227,90 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Form */}
-        <form className="space-y-4 max-w-lg">
-          <div className="flex items-center">
-            <label className="w-32 text-[black]">Email Address:</label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              disabled={!isEditing}
-              className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-            />
-          </div>
+        {userProfile ? (
+          <form className="space-y-4 max-w-lg">
+            <div className="flex items-center">
+              <label className="w-32 text-[black]">Email Address:</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                disabled={!isEditing}
+                value={userProfile.email_address}
+                onChange={(e) => setUserProfile({ ...userProfile, email_address: e.target.value })}
+                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+              />
+            </div>
 
-          <div className="flex items-center">
-            <label className="w-32 text-[black]">Full Name:</label>
-            <input
-              type="text"
-              placeholder="Enter your full name"
-              disabled={!isEditing}
-              className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-            />
-          </div>
+            <div className="flex items-center">
+              <label className="w-32 text-[black]">Full Name:</label>
+              <input
+                type="text"
+                placeholder="Enter your full name"
+                disabled={!isEditing}
+                value={userProfile.full_name}
+                onChange={(e) => setUserProfile({ ...userProfile, full_name: e.target.value })}
+                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+              />
+            </div>
 
-          <div className="flex items-center">
-            <label className="w-32 text-[black]">City:</label>
-            <input
-              type="text"
-              placeholder="Enter your city"
-              disabled={!isEditing}
-              className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-            />
-          </div>
+            <div className="flex items-center">
+              <label className="w-32 text-[black]">City:</label>
+              <input
+                type="text"
+                placeholder="Enter your city"
+                disabled={!isEditing}
+                value={userProfile.city}
+                onChange={(e) => setUserProfile({ ...userProfile, city: e.target.value })}
+                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+              />
+            </div>
 
-          <div className="flex items-center">
-            <label className="w-32 text-[black]">Country:</label>
-            <input
-              type="text"
-              placeholder="Enter your country"
-              disabled={!isEditing}
-              className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-            />
-          </div>
+            <div className="flex items-center">
+              <label className="w-32 text-[black]">Country:</label>
+              <input
+                type="text"
+                placeholder="Enter your country"
+                disabled={!isEditing}
+                value={userProfile.country}
+                onChange={(e) => setUserProfile({ ...userProfile, country: e.target.value })}
+                className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+              />
+            </div>
 
-          <div className="flex space-x-4">
-            {!isEditing ? (
-              <button
-                type="button"
-                className="px-4 py-2 rounded text-white bg-[#1A91F0] hover:bg-[#0068BB] ml-32"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-              <div className="flex">
+            <div className="flex space-x-4">
+              {!isEditing ? (
                 <button
                   type="button"
-                  className="ml-32 px-4 py-2 rounded text-white bg-[#1A91F0] hover:bg-[#0068BB] whitespace-nowrap min-w-[120px]"
-                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 rounded text-white bg-[#1A91F0] hover:bg-[#0068BB] ml-32"
+                  onClick={() => setIsEditing(true)}
                 >
-                  Save Changes
+                  Edit Profile
                 </button>
-                </div>
-                <button
-                  type="button"
-                  className="ml-1 px-4 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
-          </div>
-        </form>
+              ) : (
+                <>
+                  <div className="flex">
+                    <button
+                      type="button"
+                      className="ml-32 px-4 py-2 rounded text-white bg-[#1A91F0] hover:bg-[#0068BB] whitespace-nowrap min-w-[120px]"
+                      onClick={handleSave}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="ml-1 px-4 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        ) : (
+          <p>Loading profile...</p>
+        )}
       </div>
     </div>
   );

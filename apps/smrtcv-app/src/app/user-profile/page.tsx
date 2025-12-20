@@ -18,32 +18,36 @@ export default function ProfilePage() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [cropSource, setCropSource] = useState<string | null>(null); // To hold the image source for the modal
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
-
-  // State to hold the original profile data for resetting
   const [originalUserProfile, setOriginalUserProfile] = useState<UserProfileData | null>(null);
+  const [countries, setCountries] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/v1/users/me");
-        if (!response.ok) {
+        // Fetch user profile
+        const userResponse = await fetch("http://localhost:8000/api/v1/users/me");
+        if (!userResponse.ok) {
           throw new Error('Failed to fetch user profile.');
         }
-        const data: UserProfileData = await response.json();
-        setUserProfile(data);
-        setOriginalUserProfile(data); // Save the original state
+        const userData: UserProfileData = await userResponse.json();
+        setUserProfile(userData);
+        setOriginalUserProfile(userData);
+
+        // Fetch countries
+        const countriesResponse = await fetch("http://localhost:8000/api/v1/users/countries");
+        if (!countriesResponse.ok) {
+          throw new Error('Failed to fetch countries.');
+        }
+        const countryData: string[] = await countriesResponse.json();
+        setCountries(countryData);
+
       } catch (error) {
-        toast.error("Could not load user profile.");
+        toast.error("Could not load initial data.");
       }
     };
 
-    fetchUserProfile();
+    fetchInitialData();
   }, []);
-
-  const capitalizeWords = (str: string) => {
-    if (!str) return '';
-    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
-  };
 
   const handleSave = async () => {
     if (!userProfile) return;
@@ -286,14 +290,18 @@ export default function ProfilePage() {
 
             <div className="flex items-center">
               <label className="w-32 text-[black]">Country:</label>
-              <input
-                type="text"
-                placeholder="Enter your country"
+              <select
                 disabled={!isEditing}
                 value={userProfile.country}
-                onChange={(e) => setUserProfile({ ...userProfile, country: capitalizeWords(e.target.value) })}
+                onChange={(e) => setUserProfile({ ...userProfile, country: e.target.value })}
                 className="flex-1 p-2 rounded bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-              />
+              >
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex space-x-4">

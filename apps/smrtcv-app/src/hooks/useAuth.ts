@@ -1,37 +1,50 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User } from '@/types/dashboard';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002/api/v1";
+
 /**
- * Hook to manage user authentication.
- * In production, this would integrate with an auth provider like NextAuth, 
- * or check a JWT token in cookies/localStorage.
+ * Hook to manage user authentication using TanStack Query.
  */
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // Simulate fetching user session
-    const timer = setTimeout(() => {
-      // For now, return a mock user
-      setUser({
-        id: '1',
-        name: 'Mariel',
-        email: 'mariel@example.com',
+  const { data: user, isLoading, error } = useQuery<User>({
+    queryKey: ['auth-user'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/users/me`, {
+        method: "GET",
+        credentials: "include"
       });
-      setLoading(false);
-    }, 500);
 
-    return () => clearTimeout(timer);
-  }, []);
+      if (!res.ok) {
+        throw new Error('Failed to fetch user session');
+      }
+
+      const data = await res.json();
+      
+      return {
+        id: data.id || "1",
+        name: data.name || "User",
+        email: data.email || "user@example.com",
+        avatar: data.avatar
+      };
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    retry: false,
+  });
 
   const logout = () => {
-    setUser(null);
-    // In production: clear cookies/tokens and redirect
+    queryClient.setQueryData(['auth-user'], null);
     window.location.href = '/signin';
   };
 
-  return { user, loading, logout };
+  return { 
+    user, 
+    loading: isLoading, 
+    error,
+    logout 
+  };
 };

@@ -6,7 +6,8 @@ export function HeaderWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isDashboardPage = pathname?.startsWith('/dashboard') || 
                           pathname?.startsWith('/resumes') || 
-                          pathname?.startsWith('/templates') || 
+                          pathname?.startsWith('/templates') ||
+                          pathname?.startsWith('/builder') ||
                           pathname?.startsWith('/billing') || 
                           pathname?.startsWith('/account');
 

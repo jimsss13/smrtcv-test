@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HeaderWrapper, FooterWrapper } from './layout-wrappers';
 
+import { Providers } from './providers';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -20,15 +22,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <HeaderWrapper>
-          <Header />
-        </HeaderWrapper>
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <FooterWrapper>
-          <Footer />
-        </FooterWrapper>
+        <Providers>
+          <HeaderWrapper>
+            <Header />
+          </HeaderWrapper>
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <FooterWrapper>
+            <Footer />
+          </FooterWrapper>
+        </Providers>
       </body>
     </html>
   );

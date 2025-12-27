@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 interface DashboardShellProps {
   children: React.ReactNode;
+  hideNav?: boolean;
 }
 
 /**
@@ -15,7 +16,8 @@ interface DashboardShellProps {
  * Provides consistent layout, header, and navigation.
  */
 export const DashboardShell: React.FC<DashboardShellProps> = ({ 
-  children 
+  children,
+  hideNav = false
 }) => {
   const { user, loading } = useAuth();
 
@@ -31,8 +33,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
     <div className="min-h-screen bg-white text-foreground selection:bg-primary selection:text-white">
       <DashboardHeader userName={user?.name || "User"} />
       <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <DashboardNav />
-        <div className="mt-8">
+        {!hideNav && <DashboardNav />}
+        <div className={hideNav ? "mt-0" : "mt-8"}>
           <ErrorBoundary>
             {children}
           </ErrorBoundary>

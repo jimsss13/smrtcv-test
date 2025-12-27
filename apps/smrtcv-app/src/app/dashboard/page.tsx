@@ -17,7 +17,7 @@ export default function DashboardPage() {
     <DashboardShell>
       {/* Greeting Section */}
       <section className="text-center mb-12 sm:mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <h1 className="text-4xl sm:text-6xl font-extrabold mb-4 sm:mb-6 tracking-tight text-foreground">
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 sm:mb-6 tracking-tight text-foreground">
           Hello, {user?.name || "User"}!
         </h1>
         <p className="text-xl sm:text-2xl text-foreground font-medium opacity-90">

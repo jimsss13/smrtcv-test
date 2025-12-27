@@ -40,6 +40,13 @@ export const SignIn = () => {
             </Button>
           </div>
           <MagicLinkForm />
+          
+          <p className="mt-8 text-center text-sm text-foreground-secondary">
+            Don&apos;t have an account?{' '}
+            <a href="/signup" className="font-medium text-primary hover:underline">
+              Sign up
+            </a>
+          </p>
         </div>
       </div>
     </div>

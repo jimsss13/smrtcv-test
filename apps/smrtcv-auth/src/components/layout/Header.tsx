@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/faq', label: 'FAQs' },
   { href: '/about', label: 'About' },
   { href: '/signin', label: 'Sign In' },
+  { href: '/signup', label: 'Sign Up' },
 ];
 
 export const Header = () => {
@@ -56,6 +57,9 @@ export const Header = () => {
           >
             Sign In
           </Link>
+          <Button asChild size="sm">
+            <Link href="/signup">Sign Up</Link>
+          </Button>
           <Button asChild variant="outline" size="sm">
             <Link href="/signin">Create Resume as Guest</Link>
           </Button>
@@ -64,7 +68,7 @@ export const Header = () => {
         {/* --- Mobile Menu & Controls --- */}
         <div className="flex items-center gap-2 md:hidden">
           <Button asChild variant="outline" size="sm">
-            <Link href="/signin">Create Resume</Link>
+            <Link href="/signup">Sign Up</Link>
           </Button>
 
           <Button

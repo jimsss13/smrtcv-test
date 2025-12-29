@@ -1,6 +1,8 @@
 "use client";
+import { useClientResumeStore } from "@/hooks/useClientResumeStore";
+import { shallow } from "zustand/shallow";
+import { useCallback } from "react";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useResumeStore } from "@/stores/resumeStore";
 
 interface Props {
   selectedTemplate?: string;
@@ -12,18 +14,25 @@ const InputGroup = ({
   value, 
   placeholder, 
   onChange, 
-  className = "" 
+  className = "",
+  helpText
 }: { 
   label: string; 
   value: string; 
   placeholder?: string; 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   className?: string;
+  helpText?: string;
 }) => (
   <div className={`space-y-1.5 ${className}`}>
-    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-      {label}
-    </label>
+    <div className="flex justify-between items-center">
+      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        {label}
+      </label>
+      {helpText && (
+        <span className="text-[10px] text-gray-400 font-medium italic">{helpText}</span>
+      )}
+    </div>
     <input
       type="text"
       value={value || ""}
@@ -37,8 +46,12 @@ const InputGroup = ({
 );
 
 export function EducationForm({ selectedTemplate }: Props) {
-  const { education } = useResumeStore((state) => state.resume);
-  const { updateField, addSection, removeSection } = useResumeStore();
+  const { education, updateField, addSection, removeSection } = useClientResumeStore(useCallback((state: any) => ({
+    education: state.resume.education,
+    updateField: state.updateField,
+    addSection: state.addSection,
+    removeSection: state.removeSection
+  }), []), shallow);
 
   return (
     <section className="space-y-6 animate-in fade-in duration-500">
@@ -66,6 +79,7 @@ export function EducationForm({ selectedTemplate }: Props) {
             value={edu.institution}
             onChange={(e) => updateField(`education.${i}.institution`, e.target.value)}
             placeholder="e.g. University of California"
+            helpText="School or University name"
           />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -80,6 +94,7 @@ export function EducationForm({ selectedTemplate }: Props) {
               value={edu.area}
               onChange={(e) => updateField(`education.${i}.area`, e.target.value)}
               placeholder="e.g. Computer Science"
+              helpText="Major or Field"
             />
           </div>
 
@@ -89,12 +104,14 @@ export function EducationForm({ selectedTemplate }: Props) {
               value={edu.startDate}
               onChange={(e) => updateField(`education.${i}.startDate`, e.target.value)}
               placeholder="YYYY-MM"
+              helpText="YYYY-MM"
             />
             <InputGroup
               label="End Date"
               value={edu.endDate}
               onChange={(e) => updateField(`education.${i}.endDate`, e.target.value)}
               placeholder="YYYY-MM or Present"
+              helpText="YYYY-MM or Present"
             />
           </div>
 
@@ -111,6 +128,7 @@ export function EducationForm({ selectedTemplate }: Props) {
               value={edu.score || ""}
               onChange={(e) => updateField(`education.${i}.score`, e.target.value)}
               placeholder="e.g. 4.0 GPA"
+              helpText="Optional"
             />
           )}
         </div>

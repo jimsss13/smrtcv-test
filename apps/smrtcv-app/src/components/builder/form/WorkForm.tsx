@@ -1,10 +1,16 @@
 "use client";
-import { PlusCircle, Trash2 } from "lucide-react";
-import { useResumeStore } from "@/stores/resumeStore";
+import { useClientResumeStore } from "@/hooks/useClientResumeStore";
+import { shallow } from "zustand/shallow";
+import { useCallback } from "react";
+import { getAchievementPrompts, getKeywordOptimization, fixGrammar } from "@/lib/ai-service";
+import { PlusCircle, Trash2, Lightbulb, Sparkles } from "lucide-react";
 
-const InputGroup = ({ label, value, placeholder, onChange, className = "" }: any) => (
+const InputGroup = ({ label, value, placeholder, onChange, className = "", helpText }: any) => (
   <div className={`space-y-1.5 ${className}`}>
-    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
+    <div className="flex justify-between items-center">
+      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
+      {helpText && <span className="text-[10px] text-gray-400 font-medium italic">{helpText}</span>}
+    </div>
     <input
       type="text"
       value={value || ""}
@@ -15,9 +21,24 @@ const InputGroup = ({ label, value, placeholder, onChange, className = "" }: any
   </div>
 );
 
-const TextAreaGroup = ({ label, value, placeholder, onChange, className = "" }: any) => (
+const TextAreaGroup = ({ label, value, placeholder, onChange, className = "", helpText, onFixGrammar }: any) => (
   <div className={`space-y-1.5 ${className}`}>
-    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
+    <div className="flex justify-between items-center">
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
+        {onFixGrammar && (
+          <button 
+            onClick={onFixGrammar}
+            className="text-[10px] text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 bg-blue-50 px-1.5 py-0.5 rounded transition-colors"
+            title="AI Grammar Fix"
+          >
+            <Sparkles className="w-2.5 h-2.5" />
+            Fix Grammar
+          </button>
+        )}
+      </div>
+      {helpText && <span className="text-[10px] text-gray-400 font-medium italic">{helpText}</span>}
+    </div>
     <textarea
       value={value || ""}
       onChange={onChange}
@@ -28,8 +49,12 @@ const TextAreaGroup = ({ label, value, placeholder, onChange, className = "" }: 
 );
 
 export function WorkForm() {
-  const { work } = useResumeStore((state) => state.resume);
-  const { updateField, addSection, removeSection } = useResumeStore();
+  const { work, updateField, addSection, removeSection } = useClientResumeStore(useCallback((state: any) => ({
+    work: state.resume.work,
+    updateField: state.updateField,
+    addSection: state.addSection,
+    removeSection: state.removeSection
+  }), []), shallow);
 
   return (
     <section className="space-y-6 animate-in fade-in duration-500">
@@ -48,13 +73,23 @@ export function WorkForm() {
           <InputGroup label="Job Title" value={job.position} onChange={(e: any) => updateField(`work.${i}.position`, e.target.value)} placeholder="e.g. Senior Product Manager" />
           
           <div className="grid grid-cols-2 gap-4">
-            <InputGroup label="Start Date" value={job.startDate} onChange={(e: any) => updateField(`work.${i}.startDate`, e.target.value)} placeholder="2022-03" />
-            <InputGroup label="End Date" value={job.endDate} onChange={(e: any) => updateField(`work.${i}.endDate`, e.target.value)} placeholder="Present" />
+            <InputGroup label="Start Date" value={job.startDate} onChange={(e: any) => updateField(`work.${i}.startDate`, e.target.value)} placeholder="2022-03" helpText="YYYY-MM" />
+            <InputGroup label="End Date" value={job.endDate} onChange={(e: any) => updateField(`work.${i}.endDate`, e.target.value)} placeholder="Present" helpText="YYYY-MM or Present" />
           </div>
 
           <InputGroup label="Company Website" value={job.url} onChange={(e: any) => updateField(`work.${i}.url`, e.target.value)} placeholder="https://acme.com" />
           
-          <TextAreaGroup label="Summary & Achievements" value={job.summary} onChange={(e: any) => updateField(`work.${i}.summary`, e.target.value)} placeholder="Led a team of 5 developers..." />
+          <TextAreaGroup 
+            label="Summary & Achievements" 
+            value={job.summary} 
+            onChange={(e: any) => updateField(`work.${i}.summary`, e.target.value)} 
+            placeholder="Led a team of 5 developers..." 
+            helpText="Highlight key accomplishments" 
+            onFixGrammar={() => {
+              const fixed = fixGrammar(job.summary);
+              updateField(`work.${i}.summary`, fixed);
+            }}
+          />
         </div>
       ))}
       <button 

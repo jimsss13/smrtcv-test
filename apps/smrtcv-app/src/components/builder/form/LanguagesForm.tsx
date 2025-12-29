@@ -1,6 +1,8 @@
 "use client";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useResumeStore } from "@/stores/resumeStore";
+import { useClientResumeStore } from "@/hooks/useClientResumeStore";
+import { shallow } from "zustand/shallow";
+import { useCallback } from "react";
 
 const InputGroup = ({ label, value, placeholder, onChange }: any) => (
   <div className="space-y-1.5">
@@ -10,8 +12,12 @@ const InputGroup = ({ label, value, placeholder, onChange }: any) => (
 );
 
 export function LanguagesForm() {
-  const { languages } = useResumeStore((state) => state.resume);
-  const { updateField, addSection, removeSection } = useResumeStore();
+  const { languages, updateField, addSection, removeSection } = useClientResumeStore(useCallback((state: any) => ({
+    languages: state.resume.languages,
+    updateField: state.updateField,
+    addSection: state.addSection,
+    removeSection: state.removeSection
+  }), []), shallow);
 
   return (
     <section className="space-y-6 animate-in fade-in duration-500">

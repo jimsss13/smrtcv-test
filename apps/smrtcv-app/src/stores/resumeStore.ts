@@ -100,11 +100,27 @@ const blankEntryMap: Record<keyof Resume, any> = {
 
 // --- 3. Typed State & Actions ---
 
+export interface ExportSettings {
+  pageSize: 'A4' | 'Letter';
+  margins: 'narrow' | 'normal' | 'wide';
+  fontSize: 'small' | 'medium' | 'large';
+  primaryColor: string;
+}
+
+export interface ResumeVersion {
+  id: string;
+  timestamp: number;
+  name: string;
+  resume: Resume;
+}
+
 interface ResumeState {
   resume: Resume;
   sectionOrder: (keyof Resume)[];
   templates: Template[];
-  selectedTemplate: string; // New: Add selectedTemplate state
+  selectedTemplate: string;
+  exportSettings: ExportSettings;
+  versions: ResumeVersion[]; // New
 
   updateField: <P extends RecursiveKeyOf<Resume>>(
     path: P,
@@ -112,14 +128,15 @@ interface ResumeState {
   ) => void;
 
   addSection: (section: keyof Resume, template: any) => void;
-
-  // NEW: Remove Action
   removeSection: (section: keyof Resume, index: number) => void;
-
   updateStringArray: (path: RecursiveKeyOf<Resume>, value: string) => void;
   reorderSections: (newOrder: (keyof Resume)[]) => void;
   setTemplates: (templates: Template[]) => void;
-  setSelectedTemplate: (templateId: string) => void; // New: Add setSelectedTemplate action
+  setSelectedTemplate: (templateId: string) => void;
+  updateExportSettings: (settings: Partial<ExportSettings>) => void;
+  saveVersion: (name: string) => void; // New
+  restoreVersion: (id: string) => void; // New
+  deleteVersion: (id: string) => void; // New
 }
 
 export const useResumeStore = create(
@@ -128,7 +145,14 @@ export const useResumeStore = create(
       resume: blankResume,
       sectionOrder: defaultSectionOrder,
       templates: [],
-      selectedTemplate: 'classic', // Initialize selectedTemplate
+      selectedTemplate: 'classic',
+      exportSettings: {
+        pageSize: 'A4',
+        margins: 'normal',
+        fontSize: 'medium',
+        primaryColor: '#2563eb',
+      },
+      versions: [], // Initialize
 
       updateField: (path, value) => {
         set((state) => {
@@ -193,6 +217,38 @@ export const useResumeStore = create(
       setSelectedTemplate: (templateId) => { // New: Implement setSelectedTemplate action
         set((state) => {
           state.selectedTemplate = templateId;
+        });
+      },
+
+      updateExportSettings: (settings) => {
+        set((state) => {
+          state.exportSettings = { ...state.exportSettings, ...settings };
+        });
+      },
+
+      saveVersion: (name) => {
+        set((state) => {
+          state.versions.push({
+            id: crypto.randomUUID(),
+            timestamp: Date.now(),
+            name,
+            resume: JSON.parse(JSON.stringify(state.resume)),
+          });
+        });
+      },
+
+      restoreVersion: (id) => {
+        set((state) => {
+          const version = state.versions.find((v) => v.id === id);
+          if (version) {
+            state.resume = JSON.parse(JSON.stringify(version.resume));
+          }
+        });
+      },
+
+      deleteVersion: (id) => {
+        set((state) => {
+          state.versions = state.versions.filter((v) => v.id !== id);
         });
       },
     })),

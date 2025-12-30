@@ -1,10 +1,22 @@
+import React, { memo } from "react";
+import Image from "next/image";
 import { Basics } from '@/types/resume'; // <-- Use the new MASTER type
 
+/**
+ * Properties for the BasicsSection component.
+ */
 interface Props {
+  /** The basic personal information to render. */
   basics: Basics;
 }
 
-export function BasicsSection({ basics }: Props) {
+/**
+ * The header section for the traditional resume layout.
+ * Displays the profile photo, name, title, and contact information.
+ * 
+ * @param props - The component properties.
+ */
+const BasicsSection = memo(({ basics }: Props) => {
   // Build location string, filtering out empty parts
   const locationParts = [
     basics.location?.address,
@@ -17,17 +29,24 @@ export function BasicsSection({ basics }: Props) {
   const locationString = locationParts.join(" ");
 
   return (
-    <header className="flex flex-col md:flex-row">
+    <header className="flex flex-col md:flex-row" aria-label="Resume Header">
       {/* Photo */}
       <div className="md:w-1/4 bg-gray-200 flex items-center justify-center p-6">
         {basics.image ? (
-          <img
-            src={basics.image}
-            alt={basics.name}
-            className="w-40 h-40 object-cover rounded-full"
-          />
+          <div className="relative w-40 h-40">
+            <Image
+              src={basics.image}
+              alt={basics.name || "Profile Photo"}
+              fill
+              className="object-cover rounded-full"
+              sizes="(max-width: 768px) 160px, 160px"
+            />
+          </div>
         ) : (
-          <div className="w-40 h-40 bg-gray-300 rounded-full flex items-center justify-center">
+          <div 
+            className="w-40 h-40 bg-gray-300 rounded-full flex items-center justify-center"
+            aria-hidden="true"
+          >
             <span className="text-gray-500">Photo</span>
           </div>
         )}
@@ -38,15 +57,26 @@ export function BasicsSection({ basics }: Props) {
         <h2 className="text-2xl font-light">{basics.label}</h2>
         <div className="mt-4 space-y-1 text-sm">
           {/* Only show location if it has content */}
-          {locationString && <p>{locationString}</p>}
+          {locationString && <p aria-label="Location">{locationString}</p>}
           
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {basics.phone?.trim() && <p>{basics.phone}</p>}
-            {basics.email?.trim() && <p>{basics.email}</p>}
+            {basics.phone?.trim() && <p aria-label="Phone Number">{basics.phone}</p>}
+            {basics.email?.trim() && <p aria-label="Email Address">{basics.email}</p>}
           </div>
-          {basics.url?.trim() && <p>{basics.url}</p>}
+          {basics.url?.trim() && (
+            <p aria-label="Website">
+              <a href={basics.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                {basics.url}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </header>
   );
-}
+});
+
+BasicsSection.displayName = 'BasicsSection';
+
+export { BasicsSection };
+export default BasicsSection;

@@ -1,42 +1,25 @@
 "use client";
+
+import React, { memo } from "react";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useResumeStore } from "@/stores/resumeStore";
+import { InputGroup } from "./FormComponents";
 
-interface Props {
+/**
+ * Properties for the EducationForm component.
+ */
+interface EducationFormProps {
+  /** Optional ID of the currently selected template. */
   selectedTemplate?: string;
 }
 
-// Reusable Input Component (Consistent with BasicsForm)
-const InputGroup = ({ 
-  label, 
-  value, 
-  placeholder, 
-  onChange, 
-  className = "" 
-}: { 
-  label: string; 
-  value: string; 
-  placeholder?: string; 
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
-  className?: string;
-}) => (
-  <div className={`space-y-1.5 ${className}`}>
-    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-      {label}
-    </label>
-    <input
-      type="text"
-      value={value || ""}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-sm"
-    />
-  </div>
-);
-
-export function EducationForm({ selectedTemplate }: Props) {
+/**
+ * A form section for editing educational background in the resume.
+ * Allows adding, removing, and editing details for each educational entry.
+ * 
+ * @param props - The component properties.
+ */
+const EducationForm = memo(({ selectedTemplate }: EducationFormProps) => {
   const { education } = useResumeStore((state) => state.resume);
   const { updateField, addSection, removeSection } = useResumeStore();
 
@@ -54,7 +37,7 @@ export function EducationForm({ selectedTemplate }: Props) {
               <button
                 onClick={() => removeSection("education", i)}
                 className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
-                title="Remove entry"
+                aria-label={`Remove education entry ${i + 1}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -115,24 +98,18 @@ export function EducationForm({ selectedTemplate }: Props) {
           )}
         </div>
       ))}
-
+      
       <button 
-        type="button" 
-        onClick={() => addSection("education", { 
-          institution: "", 
-          url: "", 
-          area: "", 
-          studyType: "", 
-          startDate: "", 
-          endDate: "", 
-          location: "", 
-          score: "" 
-        })} 
-        className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors"
+        onClick={() => addSection("education", { institution: "", studyType: "", area: "", startDate: "", endDate: "" })} 
+        className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors w-full justify-center border-2 border-dashed border-blue-100 hover:border-blue-200"
       >
-        <PlusCircle className="w-4 h-4" /> 
-        Add Education
+        <PlusCircle className="w-4 h-4" /> Add Education
       </button>
     </section>
-  )
-}
+  );
+});
+
+EducationForm.displayName = "EducationForm";
+
+export { EducationForm };
+export default EducationForm;

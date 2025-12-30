@@ -3,26 +3,39 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/Button';
 
+/**
+ * Properties for the ErrorBoundary component.
+ */
 interface Props {
+  /** The content to render if no error is caught. */
   children: ReactNode;
+  /** An optional fallback UI to display when an error occurs. */
   fallback?: ReactNode;
 }
 
+/**
+ * State for the ErrorBoundary component.
+ */
 interface State {
+  /** Whether an error has been caught in the child component tree. */
   hasError: boolean;
 }
 
+/**
+ * ErrorBoundary component to catch JavaScript errors anywhere in their child component tree,
+ * log those errors, and display a fallback UI instead of the component tree that crashed.
+ */
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   public render() {

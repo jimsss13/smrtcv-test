@@ -2,22 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, AlertCircle } from 'lucide-react';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { ResumeCard } from '@/components/dashboard/ResumeCard';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { Resume } from '@/types/dashboard';
+import { useResumes } from '@/hooks/query/useResumes';
+import { ROUTES } from '@/constants/routes';
 
 /**
  * Resume Archive Page.
  * Displays a grid of existing resumes and an option to create a new one.
  */
 export default function ResumesPage() {
-  // In a real app, this would be fetched from a database
-  const [resumes, setResumes] = useState<Resume[]>([
-    { id: 1, name: "Senior Software Engineer", date: "Dec 15, 2025" },
-    { id: 2, name: "Product Manager Role", date: "Nov 28, 2025" },
-  ]);
+  const router = useRouter();
+  const { resumes, isLoading, error, deleteResume } = useResumes();
   const [resumeToDelete, setResumeToDelete] = useState<string | number | null>(null);
 
   const handleDeleteClick = (id: string | number) => {
@@ -26,14 +25,26 @@ export default function ResumesPage() {
 
   const confirmDelete = () => {
     if (resumeToDelete) {
-      setResumes(prev => prev.filter(r => r.id !== resumeToDelete));
+      deleteResume(resumeToDelete);
       setResumeToDelete(null);
     }
   };
 
   const handleEdit = (id: string | number) => {
-    window.location.href = `/builder?id=${id}`;
+    router.push(`${ROUTES.BUILDER}?id=${id}`);
   };
+
+  if (error) {
+    return (
+      <DashboardShell>
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
+          <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Failed to load resumes</h2>
+          <p className="text-gray-500 mb-6">There was an error fetching your resumes. Please try again later.</p>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell>
@@ -54,7 +65,7 @@ export default function ResumesPage() {
           <h3 className="text-sm sm:text-lg font-bold mb-3 sm:mb-4 ml-1 text-foreground">Add New</h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-10">
             <Link 
-              href="/builder" 
+              href={ROUTES.BUILDER} 
               className="aspect-4/3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl sm:rounded-4xl flex flex-col items-center justify-center hover:bg-white hover:border-primary/50 transition-all group shadow-sm hover:shadow-md"
               aria-label="Create new resume"
             >
@@ -68,7 +79,11 @@ export default function ResumesPage() {
         <section>
           <h3 className="text-sm sm:text-lg font-bold mb-3 sm:mb-4 ml-1 text-foreground">Recents</h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-10">
-            {resumes.length > 0 ? (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="aspect-4/3 bg-gray-100 animate-pulse rounded-2xl sm:rounded-4xl" />
+              ))
+            ) : resumes.length > 0 ? (
               resumes.map((resume) => (
                 <ResumeCard 
                    key={resume.id} 

@@ -1,21 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/constants/routes';
 
 /**
- * Shared Navigation Tabs for the Dashboard area.
- * Automatically highlights the active tab based on the current pathname.
+ * Shared navigation tabs for the dashboard area.
+ * Automatically highlights the active tab based on the current URL pathname.
+ * Optimized for performance with React.memo to prevent unnecessary re-renders.
+ * 
+ * @example
+ * <DashboardNav />
  */
-export const DashboardNav: React.FC = () => {
+const DashboardNav = memo(function DashboardNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'My Dashboard', href: '/dashboard' },
-    { label: 'My Resumes', href: '/resumes' },
-    { label: 'Templates', href: '/templates' },
+    { label: 'My Dashboard', href: ROUTES.DASHBOARD },
+    { label: 'My Resumes', href: ROUTES.RESUMES },
+    { label: 'Templates', href: ROUTES.TEMPLATES },
   ];
 
   return (
@@ -46,4 +51,9 @@ export const DashboardNav: React.FC = () => {
       })}
     </nav>
   );
-};
+});
+
+DashboardNav.displayName = 'DashboardNav';
+
+export { DashboardNav };
+export default DashboardNav;

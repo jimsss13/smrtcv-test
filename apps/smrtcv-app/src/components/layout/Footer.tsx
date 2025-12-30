@@ -1,3 +1,7 @@
+/**
+ * Shared footer component for the application.
+ * Displays copyright information and the current year.
+ */
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   return (

@@ -1,42 +1,24 @@
 "use client";
-import { useResumeStore } from "@/stores/resumeStore";
 
-interface Props {
+import React, { memo } from "react";
+import { useResumeStore } from "@/stores/resumeStore";
+import { InputGroup } from "./FormComponents";
+
+/**
+ * Properties for the BasicsForm component.
+ */
+interface BasicsFormProps {
+  /** The ID of the currently selected template. */
   selectedTemplate: string;
 }
 
-// Reusable Input Component for consistent styling
-// (You can move this to src/components/ui/Input.tsx later if you want)
-const InputGroup = ({ 
-  label, 
-  value, 
-  placeholder, 
-  onChange, 
-  className = "" 
-}: { 
-  label: string; 
-  value: string; 
-  placeholder?: string; 
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
-  className?: string;
-}) => (
-  <div className={`space-y-1.5 ${className}`}>
-    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-      {label}
-    </label>
-    <input
-      type="text"
-      value={value || ""}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-sm"
-    />
-  </div>
-);
-
-export function BasicsForm({ selectedTemplate }: Props) {
+/**
+ * A form section for editing basic personal information in the resume.
+ * Includes fields for name, job title, contact info, and location.
+ * 
+ * @param props - The component properties.
+ */
+const BasicsForm = memo(({ selectedTemplate }: BasicsFormProps) => {
   const basics = useResumeStore((state) => state.resume.basics);
   const updateField = useResumeStore((state) => state.updateField);
 
@@ -67,12 +49,14 @@ export function BasicsForm({ selectedTemplate }: Props) {
           value={basics.email}
           onChange={(e) => updateField("basics.email", e.target.value)}
           placeholder="john@example.com"
+          type="email"
         />
         <InputGroup
           label="Phone"
           value={basics.phone}
           onChange={(e) => updateField("basics.phone", e.target.value)}
           placeholder="+1 234 567 890"
+          type="tel"
         />
       </div>
 
@@ -156,5 +140,10 @@ export function BasicsForm({ selectedTemplate }: Props) {
         />
       </div>
     </section>
-  )
-}
+  );
+});
+
+BasicsForm.displayName = "BasicsForm";
+
+export { BasicsForm };
+export default BasicsForm;

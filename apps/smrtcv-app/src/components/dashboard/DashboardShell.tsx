@@ -1,27 +1,40 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardNav } from './DashboardNav';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/query/useAuth';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
+/**
+ * Properties for the DashboardShell component.
+ */
 interface DashboardShellProps {
+  /** The content to render within the shell's main area. */
   children: React.ReactNode;
+  /** Whether to hide the standard dashboard navigation tabs. */
   hideNav?: boolean;
 }
 
 /**
- * Shell component for all dashboard-related pages.
- * Provides consistent layout, header, and navigation.
+ * A shell component that wraps all dashboard-related pages.
+ * Ensures a consistent layout with header, navigation, and error handling.
+ * Optimized for performance with React.memo to prevent unnecessary re-renders.
+ * 
+ * @example
+ * <DashboardShell>
+ *   <div>Dashboard content goes here</div>
+ * </DashboardShell>
+ * 
+ * @param props - Component properties including children and optional hideNav flag.
  */
-export const DashboardShell: React.FC<DashboardShellProps> = ({ 
+const DashboardShell = memo(function DashboardShell({ 
   children,
   hideNav = false
-}) => {
-  const { user, loading } = useAuth();
+}: DashboardShellProps) {
+  const { user, isLoading } = useAuth();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -42,4 +55,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
       </main>
     </div>
   );
-};
+});
+
+DashboardShell.displayName = 'DashboardShell';
+
+export { DashboardShell };
+export default DashboardShell;

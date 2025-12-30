@@ -1,10 +1,21 @@
-import { Resume, Work } from "@/types/resume";
+import React, { memo } from "react";
+import { Work } from "@/types/resume";
 
+/**
+ * Properties for the Experience component.
+ */
 interface ExperienceProps {
+  /** Array of work experience entries. */
   work: Work[];
 }
 
-// Helper function to check if a job entry is actually empty (trims strings)
+/**
+ * Helper function to check if a job entry is empty.
+ * Trims strings and checks for meaningful content in name, position, summary, or highlights.
+ * 
+ * @param job - The work entry to check.
+ * @returns True if the job entry is considered empty.
+ */
 function isJobEmpty(job: Work) {
   if (!job) return true;
   return !job.name?.trim() && 
@@ -13,9 +24,24 @@ function isJobEmpty(job: Work) {
          (!job.highlights || job.highlights.filter(h => h.trim()).length === 0);
 }
 
-export function Experience({ work }: ExperienceProps) {
+/**
+ * A component that renders the work experience section of a resume.
+ * Displays a list of jobs with company name, position, dates, summary, and highlights.
+ * Automatically filters out empty entries and hides the section if no entries exist.
+ * Optimized for performance with React.memo.
+ * 
+ * @example
+ * <Experience 
+ *   work={[
+ *     { name: "Tech Corp", position: "Senior Dev", startDate: "2021", endDate: "Present", summary: "Led the team.", highlights: ["Increased efficiency by 20%"] }
+ *   ]} 
+ * />
+ * 
+ * @param props - The component properties including an array of work entries.
+ */
+export const Experience = memo(function Experience({ work }: ExperienceProps) {
   // 1. Filter out any jobs that are "empty"
-  const filteredWork = work.filter(job => !isJobEmpty(job));
+  const filteredWork = (work || []).filter(job => !isJobEmpty(job));
 
   // 2. If the filtered array is empty, render nothing at all.
   if (filteredWork.length === 0) return null;
@@ -48,4 +74,4 @@ export function Experience({ work }: ExperienceProps) {
       ))}
     </section>
   );
-}
+});

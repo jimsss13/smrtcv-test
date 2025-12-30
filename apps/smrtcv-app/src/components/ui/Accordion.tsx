@@ -5,9 +5,26 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const Accordion = AccordionPrimitive.Root;
+/**
+ * The root Accordion component that manages the expanded/collapsed state of its items.
+ * Built on top of Radix UI Accordion primitive.
+ * 
+ * @example
+ * <Accordion type="single" collapsible>
+ *   <AccordionItem value="item-1">...</AccordionItem>
+ * </Accordion>
+ */
+const Accordion = React.memo(AccordionPrimitive.Root);
+Accordion.displayName = 'Accordion';
 
-const AccordionItem = React.forwardRef<
+/**
+ * An individual collapsible item within an Accordion.
+ * Must be wrapped in an Accordion component.
+ * 
+ * @param props - Item properties including value and optional className.
+ * @param ref - React ref for the underlying item element.
+ */
+const AccordionItem = React.memo(React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
@@ -16,10 +33,17 @@ const AccordionItem = React.forwardRef<
     className={cn('border-b border-border', className)}
     {...props}
   />
-));
+)));
 AccordionItem.displayName = 'AccordionItem';
 
-const AccordionTrigger = React.forwardRef<
+/**
+ * The interactive trigger that toggles the expansion of an AccordionItem.
+ * Displays a title and a chevron icon that rotates when expanded.
+ * 
+ * @param props - Trigger properties including children (title) and optional className.
+ * @param ref - React ref for the underlying trigger element.
+ */
+const AccordionTrigger = React.memo(React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
@@ -36,10 +60,17 @@ const AccordionTrigger = React.forwardRef<
       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
-));
+)));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
-const AccordionContent = React.forwardRef<
+/**
+ * The content area of an AccordionItem that is revealed when the trigger is clicked.
+ * Handles the expansion/collapse animation.
+ * 
+ * @param props - Content properties including children and optional className.
+ * @param ref - React ref for the underlying content element.
+ */
+const AccordionContent = React.memo(React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
@@ -50,7 +81,7 @@ const AccordionContent = React.forwardRef<
   >
     <div className={cn('pb-4 pt-0', className)}>{children}</div>
   </AccordionPrimitive.Content>
-));
+)));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };

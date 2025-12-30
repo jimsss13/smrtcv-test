@@ -3,6 +3,9 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
+/**
+ * Configuration for button style variants using class-variance-authority.
+ */
 const buttonVariants = cva(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
@@ -29,13 +32,27 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Properties for the Button component.
+ */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /** Whether to render the button as a child element using Radix UI Slot. */
   asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+/**
+ * A highly customizable button component with multiple variants and sizes.
+ * Built with Radix UI Slot for flexibility and class-variance-authority for styling.
+ * 
+ * @example
+ * <Button variant="primary" size="lg">Click Me</Button>
+ * 
+ * @param props - Component properties including variant, size, and standard button attributes.
+ * @param ref - React ref for the underlying button element.
+ */
+const Button = React.memo(React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
     return (
@@ -46,7 +63,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       />
     );
   }
-);
+));
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };

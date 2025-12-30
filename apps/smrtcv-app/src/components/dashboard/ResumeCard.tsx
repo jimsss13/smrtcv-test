@@ -2,19 +2,39 @@
 
 import React, { memo } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Resume } from '@/types/dashboard';
+import { ResumeSummary } from '@/types/dashboard';
 
+/**
+ * Properties for the ResumeCard component.
+ */
 interface ResumeCardProps {
-  resume: Resume;
+  /** The resume data to display. */
+  resume: ResumeSummary;
+  /** Callback function when the delete action is triggered. */
   onDelete: (id: string | number) => void;
+  /** Callback function when the edit action is triggered. */
   onEdit: (id: string | number) => void;
 }
 
-export const ResumeCard = memo(({ 
+/**
+ * A card component that displays a summary of a user's resume.
+ * Includes a visual placeholder preview and action buttons for editing or deleting.
+ * Optimized for performance with React.memo to prevent unnecessary re-renders.
+ * 
+ * @example
+ * <ResumeCard 
+ *   resume={{ id: '1', name: 'Software Engineer', date: 'Oct 2023' }} 
+ *   onEdit={(id) => console.log('Edit', id)} 
+ *   onDelete={(id) => console.log('Delete', id)} 
+ * />
+ * 
+ * @param props - Component properties including resume data and action callbacks.
+ */
+const ResumeCard = memo(function ResumeCard({ 
   resume, 
   onDelete, 
   onEdit 
-}: ResumeCardProps) => {
+}: ResumeCardProps) {
   return (
     <article className="animate-in fade-in duration-500 relative group">
       <div className="relative aspect-4/3 bg-white border-2 border-gray-200 rounded-2xl sm:rounded-4xl shadow-sm group-hover:shadow-xl group-hover:border-primary/20 transition-all duration-300 overflow-hidden cursor-pointer">
@@ -63,3 +83,8 @@ export const ResumeCard = memo(({
     </article>
   );
 });
+
+ResumeCard.displayName = 'ResumeCard';
+
+export { ResumeCard };
+export default ResumeCard;

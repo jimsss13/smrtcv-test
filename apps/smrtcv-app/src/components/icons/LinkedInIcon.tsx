@@ -1,5 +1,10 @@
 import { SVGProps } from 'react';
 
+/**
+ * Custom SVG component for the LinkedIn logo icon.
+ * 
+ * @param props - Standard SVG element properties.
+ */
 export const LinkedInIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

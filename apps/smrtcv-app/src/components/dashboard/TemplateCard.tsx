@@ -5,13 +5,39 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { Template } from '@/types/dashboard';
+import { ROUTES } from '@/constants/routes';
 
+/**
+ * Properties for the TemplateCard component.
+ */
 interface TemplateCardProps {
+  /** The template data to display. */
   template: Template;
+  /** Whether this card is currently the active one in a list or carousel. */
   isActive: boolean;
 }
 
-export const TemplateCard = memo(({ template, isActive }: TemplateCardProps) => {
+/**
+ * A detailed card component for displaying a resume template.
+ * Shows a styled preview of the template, usage statistics, and actions to use or preview it.
+ * Optimized for performance with React.memo to prevent unnecessary re-renders.
+ * 
+ * @example
+ * <TemplateCard 
+ *   template={{ 
+ *     id: 'modern', 
+ *     name: 'Modern Template', 
+ *     description: 'A clean and professional look.', 
+ *     users: 1200, 
+ *     color: 'bg-blue-500', 
+ *     popular: true 
+ *   }} 
+ *   isActive={true} 
+ * />
+ * 
+ * @param props - Component properties including template data and active state.
+ */
+const TemplateCard = memo(function TemplateCard({ template, isActive }: TemplateCardProps) {
   if (!isActive) return null;
 
   return (
@@ -63,7 +89,7 @@ export const TemplateCard = memo(({ template, isActive }: TemplateCardProps) => 
             asChild
             className="h-14 sm:h-16 px-8 sm:px-10 rounded-full text-lg sm:text-xl font-bold bg-primary hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20"
           >
-            <Link href={`/builder?template=${template.id}`}>
+            <Link href={`${ROUTES.BUILDER}?template=${template.id}`}>
               Use This Template
             </Link>
           </Button>
@@ -78,3 +104,8 @@ export const TemplateCard = memo(({ template, isActive }: TemplateCardProps) => 
     </div>
   );
 });
+
+TemplateCard.displayName = 'TemplateCard';
+
+export { TemplateCard };
+export default TemplateCard;

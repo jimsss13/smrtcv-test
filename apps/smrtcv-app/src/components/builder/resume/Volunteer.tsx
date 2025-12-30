@@ -1,9 +1,21 @@
-import { Resume, Volunteer as VolunteerType } from "@/types/resume";
+import React, { memo } from "react";
+import { Volunteer as VolunteerType } from "@/types/resume";
 
+/**
+ * Properties for the Volunteer component.
+ */
 interface VolunteerProps {
+  /** Array of volunteer experience entries. */
   volunteer: VolunteerType[] | undefined;
 }
 
+/**
+ * Helper function to check if a volunteer entry is empty.
+ * Trims strings and checks for meaningful content in organization, position, or startDate.
+ * 
+ * @param vol - The volunteer entry to check.
+ * @returns True if the volunteer entry is considered empty.
+ */
 function isVolunteerEmpty(vol: VolunteerType) {
   if (!vol) return true;
   return !vol.organization?.trim() && 
@@ -11,10 +23,25 @@ function isVolunteerEmpty(vol: VolunteerType) {
          !vol.startDate?.trim();
 }
 
-export function Volunteer({ volunteer }: VolunteerProps) {
-  const filteredVolunteer = volunteer?.filter(v => !isVolunteerEmpty(v));
+/**
+ * A component that renders the volunteer section of a resume.
+ * Displays a list of volunteer experiences with organization names, positions, and dates.
+ * Automatically filters out empty entries and hides the section if no entries exist.
+ * Optimized for performance with React.memo.
+ * 
+ * @example
+ * <Volunteer 
+ *   volunteer={[
+ *     { organization: "Code for Good", position: "Mentor", startDate: "2022", endDate: "2023" }
+ *   ]} 
+ * />
+ * 
+ * @param props - The component properties including an array of volunteer entries.
+ */
+export const Volunteer = memo(function Volunteer({ volunteer }: VolunteerProps) {
+  const filteredVolunteer = (volunteer || []).filter(v => !isVolunteerEmpty(v));
 
-  if (!filteredVolunteer || filteredVolunteer.length === 0) return null;
+  if (filteredVolunteer.length === 0) return null;
 
   return (
     <section className="mb-8 break-inside-avoid">
@@ -32,4 +59,4 @@ export function Volunteer({ volunteer }: VolunteerProps) {
       ))}
     </section>
   );
-}
+});

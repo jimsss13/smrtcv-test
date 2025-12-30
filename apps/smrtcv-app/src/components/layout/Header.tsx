@@ -6,13 +6,18 @@ import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/constants/routes';
 
 const navLinks = [
-  { href: '/faq', label: 'FAQs' },
-  { href: '/about', label: 'About' },
-  { href: '/signin', label: 'Sign In' },
+  { href: ROUTES.FAQ, label: 'FAQs' },
+  { href: ROUTES.ABOUT, label: 'About' },
+  { href: ROUTES.SIGNIN, label: 'Sign In' },
 ];
 
+/**
+ * Shared header component for the public-facing pages.
+ * Handles responsive navigation and provides links to key areas like FAQ, About, and Sign In.
+ */
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -23,7 +28,7 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
       <div className="container mx-auto flex h-16 max-w-8xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center text-lg font-bold">
+        <Link href={ROUTES.HOME} className="flex items-center text-lg font-bold">
           <div>
             <Image
               src="/logo.png" 
@@ -39,32 +44,32 @@ export const Header = () => {
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link
-            href="/faq"
+            href={ROUTES.FAQ}
             className="text-foreground-secondary transition-colors hover:text-foreground"
           >
             FAQs
           </Link>
           <Link
-            href="/about"
+            href={ROUTES.ABOUT}
             className="text-foreground-secondary transition-colors hover:text-foreground"
           >
             About
           </Link>
           <Link
-            href="/signin"
+            href={ROUTES.SIGNIN}
             className="text-foreground-secondary transition-colors hover:text-foreground"
           >
             Sign In
           </Link>
           <Button asChild variant="outline" size="sm">
-            <Link href="/signin">Create Resume as Guest</Link>
+            <Link href={ROUTES.SIGNIN}>Create Resume as Guest</Link>
           </Button>
         </nav>
 
         {/* --- Mobile Menu & Controls --- */}
         <div className="flex items-center gap-2 md:hidden">
           <Button asChild variant="outline" size="sm">
-            <Link href="/signin">Create Resume</Link>
+            <Link href={ROUTES.SIGNIN}>Create Resume</Link>
           </Button>
 
           <Button
@@ -96,7 +101,7 @@ export const Header = () => {
               href={link.href}
               className={cn(
                 'transition-colors',
-                link.href === '/signin'
+                link.href === ROUTES.SIGNIN
                   ? 'font-semibold text-foreground'
                   : 'text-foreground-secondary hover:text-foreground'
               )}

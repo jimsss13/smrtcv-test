@@ -1,14 +1,33 @@
 "use client";
 
+import React, { memo } from "react";
 import Image from "next/image";
 import { TEMPLATE_REGISTRY } from "@/lib/templates";
 
+/**
+ * Properties for the DesignPanel component.
+ */
 interface DesignPanelProps {
+  /** The ID of the currently selected template. */
   selectedTemplate: string;
+  /** Callback function triggered when a template is selected. */
   onTemplateSelect: (templateId: string) => void;
 }
 
-export default function DesignPanel({ selectedTemplate, onTemplateSelect }: DesignPanelProps) {
+/**
+ * A panel for selecting resume templates.
+ * Displays a grid of available templates with thumbnails and selection indicators.
+ * Optimized for performance with React.memo to prevent unnecessary re-renders.
+ * 
+ * @example
+ * <DesignPanel 
+ *   selectedTemplate="modern" 
+ *   onTemplateSelect={(id) => setTemplate(id)} 
+ * />
+ * 
+ * @param props - Component properties.
+ */
+export const DesignPanel = memo(function DesignPanel({ selectedTemplate, onTemplateSelect }: DesignPanelProps) {
   // Convert Registry to Array for rendering
   const availableTemplates = Object.values(TEMPLATE_REGISTRY);
 
@@ -24,6 +43,8 @@ export default function DesignPanel({ selectedTemplate, onTemplateSelect }: Desi
             <button
               key={template.id}
               onClick={() => onTemplateSelect(template.id)}
+              aria-pressed={isSelected}
+              aria-label={`Select ${template.name} template`}
               className={`
                 group relative flex flex-col items-center rounded-lg border-2 transition-all overflow-hidden
                 ${isSelected 
@@ -37,8 +58,9 @@ export default function DesignPanel({ selectedTemplate, onTemplateSelect }: Desi
                 {template.thumbnail ? (
                   <Image
                     src={template.thumbnail}
-                    alt={template.name}
+                    alt={`${template.name} preview`}
                     fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
                     className={`object-cover object-top transition-transform duration-500 ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
                   />
                 ) : (
@@ -71,4 +93,6 @@ export default function DesignPanel({ selectedTemplate, onTemplateSelect }: Desi
       </div>
     </div>
   );
-}
+});
+
+export default DesignPanel;

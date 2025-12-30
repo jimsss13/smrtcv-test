@@ -1,45 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { AlertCircle } from 'lucide-react';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
-import { TemplateCard } from '@/components/dashboard/TemplateCard';
-import { Template } from '@/types/dashboard';
+import { TemplateCarousel } from '@/components/dashboard/TemplateCarousel';
+import { useTemplates } from '@/hooks/query/useTemplates';
 
 /**
  * Template Selection Page.
  * Showcases available resume templates in an interactive carousel.
  */
 export default function TemplatesPage() {
-  const [activeTemplateIndex, setActiveTemplateIndex] = useState(0);
+  const { templates, isLoading, error } = useTemplates();
 
-  const templates: Template[] = [
-    { 
-      id: "classic",
-      name: "Classic Professional", 
-      users: "45,000",
-      description: "Timeless and elegant, perfect for traditional industries like Law and Finance.",
-      color: "bg-blue-600",
-      popular: true
-    },
-    { 
-      id: "modern",
-      name: "Modern Minimalist", 
-      users: "32,000",
-      description: "Clean lines and plenty of white space for a contemporary, tech-focused look.",
-      color: "bg-emerald-600"
-    },
-    { 
-      id: "traditional",
-      name: "Traditional Executive", 
-      users: "18,000",
-      description: "Structured and dense, ideal for senior leaders with extensive experience.",
-      color: "bg-slate-800"
-    },
-  ];
-
-  const handleNext = () => setActiveTemplateIndex((prev) => (prev + 1) % templates.length);
-  const handlePrev = () => setActiveTemplateIndex((prev) => (prev - 1 + templates.length) % templates.length);
+  if (error) {
+    return (
+      <DashboardShell>
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
+          <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Failed to load templates</h2>
+          <p className="text-gray-500 mb-6">There was an error fetching the templates. Please try again later.</p>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell>
@@ -55,46 +39,11 @@ export default function TemplatesPage() {
 
       {/* Template Carousel */}
       <div className="max-w-6xl mx-auto px-4 mb-24">
-        <div className="relative group">
-          {/* Main Display Area */}
-          {templates.map((template, idx) => (
-            <TemplateCard 
-              key={template.id} 
-              template={template} 
-              isActive={idx === activeTemplateIndex} 
-            />
-          ))}
-
-          {/* Navigation Arrows */}
-          <button 
-            onClick={handlePrev}
-            className="absolute -left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-primary transition-all hover:scale-110 z-10"
-            aria-label="Previous template"
-          >
-            <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={2.5} />
-          </button>
-          <button 
-            onClick={handleNext}
-            className="absolute -right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-primary transition-all hover:scale-110 z-10"
-            aria-label="Next template"
-          >
-            <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={2.5} />
-          </button>
-
-          {/* Indicators */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 pt-6 sm:pt-8">
-            {templates.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveTemplateIndex(idx)}
-                className={`h-2.5 sm:h-3 transition-all rounded-full ${
-                  idx === activeTemplateIndex ? "w-8 sm:w-10 bg-primary" : "w-2.5 sm:w-3 bg-gray-300 hover:bg-gray-400"
-                }`}
-                aria-label={`Go to template ${idx + 1}`}
-              />
-            ))}
-          </div>
-        </div>
+        {isLoading ? (
+          <div className="aspect-video bg-gray-100 animate-pulse rounded-[32px] sm:rounded-[48px]" />
+        ) : (
+          <TemplateCarousel templates={templates} />
+        )}
       </div>
     </DashboardShell>
   );

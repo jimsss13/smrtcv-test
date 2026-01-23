@@ -1,0 +1,14 @@
+[
+  {
+    "id": "classic",
+    "name": "Classic",
+    "thumbnail": "classic.png",
+    "path": "classic/index.html"
+  },
+  {
+    "id": "traditional",
+    "name": "Traditional",
+    "thumbnail": "traditional.png",
+    "path": "traditional/index.html"
+  }
+]

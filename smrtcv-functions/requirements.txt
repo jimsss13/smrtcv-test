@@ -1,0 +1,7 @@
+azure-functions
+opencv-python
+Pillow
+pycountry
+azure-ai-contentsafety
+azure-cognitiveservices-vision-face
+azure-storage-blob

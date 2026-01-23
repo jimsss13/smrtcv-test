@@ -1,0 +1,18 @@
+{
+  "name": "smrtcv-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev:public": "pnpm --filter smrtcv-public exec next dev --turbopack -p 4000",
+    "dev:auth": "pnpm --filter smrtcv-auth exec next dev --turbopack -p 4001",
+    "dev:app": "pnpm --filter smrtcv-app exec next dev --turbopack -p 4002",
+    "build:all": "pnpm -r build",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0"
+  }
+}

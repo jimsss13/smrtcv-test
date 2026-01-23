@@ -1,0 +1,8 @@
+0000000000000000000000000000000000000000 2793681f8ab5fad9054288648ce6bd039620f434 clev225 <clevenjavier2021@gmail.com> 1765551860 +0800	clone: from https://github.com/jimsss13/smrtcv-test.git
+2793681f8ab5fad9054288648ce6bd039620f434 401f2f454dc86df7adaab8838117a08e70efe481 clev225 <clevenjavier2021@gmail.com> 1765552354 +0800	checkout: moving from main to feature/account-detail-management
+401f2f454dc86df7adaab8838117a08e70efe481 1ae13c9afb2240ba82ab29565f7824756f6d1925 clev225 <clevenjavier2021@gmail.com> 1765860908 +0800	commit: *CropModal component added under user-profile page.
+1ae13c9afb2240ba82ab29565f7824756f6d1925 0c2802813446dd4ea170521ae1a04503205615fb clev225 <clevenjavier2021@gmail.com> 1766147023 +0800	commit: Backend: API Fetching account details via json and is now editable
+0c2802813446dd4ea170521ae1a04503205615fb 860c6a8d66a4b7a47f8ba63cc3be2f4a19a2f45f clev225 <clevenjavier2021@gmail.com> 1766147027 +0800	pull --tags origin feature/account-detail-management: Merge made by the 'ort' strategy.
+860c6a8d66a4b7a47f8ba63cc3be2f4a19a2f45f 82450d53181377aa3a60a3c68e778485602960c0 clev225 <clevenjavier2021@gmail.com> 1766147853 +0800	pull --tags origin feature/account-detail-management: Fast-forward
+82450d53181377aa3a60a3c68e778485602960c0 f11efe0c11a75285001dd256f855923f71ac506c clev225 <clevenjavier2021@gmail.com> 1766159960 +0800	commit: Installed 'pycountry' on users.py to act as a validator so existing countries are only accepted. (Still needs fixing USA is not working...)
+f11efe0c11a75285001dd256f855923f71ac506c 624b4ffc426ae3b8886b61fbbdd8ffcad6fca177 clev225 <clevenjavier2021@gmail.com> 1766206089 +0800	commit: feat(user-profile): replace country input with dropdown to prevent invalid countries
